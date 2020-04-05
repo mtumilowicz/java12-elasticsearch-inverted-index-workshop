@@ -87,6 +87,7 @@
         * token indexing — stores those tokens into the index
             * sent to Lucene to be indexed for the document
             * make up the inverted index
+    * proces analizy dla searchy!!!!!!!!!!!!!!!!!!
 * inverted indexing
     * Lucene data structure where it keeps a list of where each word belong
     * example: index in the book with words and what pages they appear
