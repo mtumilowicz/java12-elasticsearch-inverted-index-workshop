@@ -67,3 +67,31 @@
 * inverted indexing
     * Lucene data structure where it keeps a list of where each word belong
     * example: index in the book with words and what pages they appear
+* node
+    * node is an instance of Elasticsearch
+    * multiple nodes can join the same cluster
+    * with a cluster of multiple nodes, the same data can be spread across multiple servers
+        * helps performance because Elasticsearch has more resources to work with
+        * helps reliability: if you have at least one replica per shard, any node can disappear and Elasticsearch 
+        will still serve you all the data
+* shard
+    * the smallest unit Elasticsearch deals with
+    * is a Lucene index: a directory of files containing an inverted index
+    * Elasticsearch index is broken down into chunks: shards
+    * stores the original document’s content plus additional information, such as term dictionary and term frequencies
+        * term dictionary maps each term to identifiers of documents containing that term
+        * term frequencies give Elasticsearch quick access to the number of appearances of a term in a document
+            * important for calculating the relevancy score of results
+            * by default, the ranking algorithm is TF-IDF
+    * replicas are exact copies of the primary shard
+    * replicas can be added or removed at runtime—primaries can’t
+    * by default, documents are distributed evenly between shards: for each document, the shard is determined by
+      hashing its ID string
+        * each shard has an equal hash range, with equal chances of receiving the new document
+        * once the target shard is determined, the current node forwards the document to the node holding that shard
+        * subsequently, that indexing operation is replayed by all the replicas of that shard
+    * with searching, the node that receives the request forwards it to a set of shards containing all your data
+        * using a round-robin, Elasticsearch selects an available shard (which can be primary or replica) and 
+        forwards the search request to it
+        * Elasticsearch then gathers results from those shards, aggregates them into a single reply, and forwards 
+        the reply back to the client application
