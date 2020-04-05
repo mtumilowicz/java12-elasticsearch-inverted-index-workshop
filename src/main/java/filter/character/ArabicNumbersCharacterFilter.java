@@ -1,8 +1,10 @@
 package filter.character;
 
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
-public class ArabicNumbersCharacterFilter implements CharacterFilter {
+public class ArabicNumbersCharacterFilter implements Function<Stream<String>, Stream<String>> {
 
     private final MappingCharacterFilter filter;
 
@@ -24,7 +26,7 @@ public class ArabicNumbersCharacterFilter implements CharacterFilter {
     }
 
     @Override
-    public String filter(String string) {
-        return filter.filter(string);
+    public Stream<String> apply(Stream<String> string) {
+        return filter.apply(string);
     }
 }

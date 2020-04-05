@@ -1,10 +1,11 @@
 package filter.token;
 
+import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class LowercaseTokenFilter implements TokenFilter {
+public class LowercaseTokenFilter implements Function<Stream<String>, Stream<String>> {
     @Override
-    public Stream<String> filter(String token) {
-        return Stream.of(token.toLowerCase());
+    public Stream<String> apply(Stream<String> tokens) {
+        return tokens.map(String::toLowerCase);
     }
 }

@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 @AllArgsConstructor
-public class MappingCharacterFilter implements CharacterFilter {
+public class MappingCharacterFilter implements Function<Stream<String>, Stream<String>> {
 
     private Map<String, String> map = new HashMap<>();
 
@@ -24,7 +26,7 @@ public class MappingCharacterFilter implements CharacterFilter {
     }
 
     @Override
-    public String filter(String string) {
-        return map.getOrDefault(string, string);
+    public Stream<String> apply(Stream<String> string) {
+        return string.map(str -> map.getOrDefault(str, str));
     }
 }
