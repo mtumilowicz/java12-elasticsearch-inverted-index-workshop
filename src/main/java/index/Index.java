@@ -1,29 +1,18 @@
 package index;
 
-import pipeline.AnalyzingPipeline;
-import pipeline.StandardPipeline;
+import lombok.RequiredArgsConstructor;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+@RequiredArgsConstructor
+class Index {
+    private final DocumentId documentId;
+    private final String token;
+    private final Frequency frequency;
 
-public class Index {
-    InvertedIndex invertedIndex = new InvertedIndex();
-    Map<DocumentId, Document> documents = new HashMap<>();
-    AnalyzingPipeline pipeline = new StandardPipeline();
-
-    void index(Document document) {
-        documents.put(document.id, document);
-        document.content().flatMap(pipeline::analyze).forEach(token -> invertedIndex.put(token, document.id));
+    static Index init(DocumentId documentId, String token) {
+        return new Index(documentId, token, Frequency.zero());
     }
 
-    Set<DocumentId> find(String string) {
-        return pipeline.analyze(string)
-                .map(invertedIndex::get)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
+    Index incrementFrequency() {
+        return new Index(documentId, token, frequency.increment());
     }
 }
-

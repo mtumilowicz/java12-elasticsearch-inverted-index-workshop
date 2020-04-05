@@ -1,20 +1,20 @@
 package index;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 
 public class InvertedIndex {
 
-    Map<String, Set<DocumentId>> index = new HashMap<>();
+    Map<String, Index> index = new HashMap<>();
 
-    void put(String token, DocumentId id) {
-        index.computeIfAbsent(token, ignore -> new HashSet<>()).add(id);
+    void put(String token, DocumentId documentId) {
+        index.compute(token, (k, index) -> Objects.isNull(index) ? Index.init(documentId, token) : index.incrementFrequency());
     }
 
-    Set<DocumentId> get(String token) {
+    Index get(String token) {
         return index.get(token);
     }
 
 }
+
