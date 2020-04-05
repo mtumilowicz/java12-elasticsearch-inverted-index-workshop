@@ -67,8 +67,9 @@
 * analysis
     ![alt text](img/analysis_overview.png)
     ![alt text](img/analysis_example.png)
-    * is the process Elasticsearch performs on the body of a document before the
-      document is sent off to be added to the inverted index
+    * is the process Elasticsearch performs on the body of a document before the document is sent off to be added to 
+    the inverted index
+        * the same process is then applied to the query string
     * steps
         * character filtering — transforms the characters using a character filter
             * are used to transform particular character sequences into other character sequences
@@ -87,7 +88,6 @@
         * token indexing — stores those tokens into the index
             * sent to Lucene to be indexed for the document
             * make up the inverted index
-    * proces analizy dla searchy!!!!!!!!!!!!!!!!!!
 * inverted indexing
     * Lucene data structure where it keeps a list of where each word belong
     * example: index in the book with words and what pages they appear
