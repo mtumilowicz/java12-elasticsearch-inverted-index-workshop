@@ -43,6 +43,26 @@
     * is an independent chunk of documents
         * like a database in the relational world: each index is stored on the disk in the same set of files
     * you can search across types, you can search across indices
+    * searches are often not run on the very latest indexed data (which would be real time) but close to it
+    * Elasticsearch keeps a point-in-time view of the index opened, so multiple searches would hit the same files and 
+    reuse the same caches
+        * during this time, newly indexed documents won’t be visible to those searches until you do a refresh
+    * refreshing, as the name suggests, refreshes this point-in-time view of the index so your searches can hit your 
+    newly indexed data
+        * the default behavior is to refresh every index automatically every second
+    * with Elasticsearch the process of refreshing and the process of committing in-memory segments to disk are 
+    independent
+        * data is indexed first in memory, but after a refresh, Elasticsearch will happily search the in-memory
+        segments as well
+        * the process of committing in-memory segments to the actual Lucene index you have on disk is called a 
+        flush, and it happens whether the segments are searchable or not
+    * to make sure that in-memory data isn’t lost when a node goes down or a shard is relocated, Elasticsearch keeps 
+    track of the indexing operations that weren’t flushed yet in a transaction log
+        * Besides committing in-memory segments to disk, a flush also clears the transaction log
+    * a flush is triggered in one of the following conditions
+      * the memory buffer is full
+      * a certain amount of time passed since the last flush
+      * the transaction log hit a certain size threshold
 * analysis
     ![alt text](img/analysis_overview.png)
     ![alt text](img/analysis_example.png)
