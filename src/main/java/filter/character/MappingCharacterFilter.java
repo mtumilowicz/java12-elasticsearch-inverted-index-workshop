@@ -8,7 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 @AllArgsConstructor
-public class MappingCharacterFilter implements Function<Stream<String>, Stream<String>> {
+public class MappingCharacterFilter implements CharacterFilter {
 
     private Map<String, String> map = new HashMap<>();
 

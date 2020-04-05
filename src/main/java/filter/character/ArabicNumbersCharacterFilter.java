@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class ArabicNumbersCharacterFilter implements Function<Stream<String>, Stream<String>> {
+public class ArabicNumbersCharacterFilter implements CharacterFilter {
 
     private final MappingCharacterFilter filter;
 

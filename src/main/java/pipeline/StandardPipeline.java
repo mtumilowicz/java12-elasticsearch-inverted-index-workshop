@@ -1,5 +1,7 @@
 package pipeline;
 
+import filter.character.CharacterFilter;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -11,6 +13,9 @@ public class StandardPipeline implements AnalyzingPipeline {
     List<Function<Stream<String>, Stream<String>>> tokenizers;
     List<Function<Stream<String>, Stream<String>>> tokenFilters;
 
+    void addCharacterFilter(CharacterFilter filter) {
+        characterFilters.add(filter);
+    }
 
     @Override
     public Stream<String> analyze(String string) {
