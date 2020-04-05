@@ -138,3 +138,5 @@
     * updating a document can’t change the actual document; it can only index a new one
     * default merge policy is tiered, divides segments into tiers, and if you have more than the set maximum number 
     of segments in a tier, a merge is triggered in that tier
+* scoring
+    * TF-IDF
