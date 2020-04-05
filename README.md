@@ -4,6 +4,7 @@
     * http://siddhumehta.blogspot.com/2014/06/elasticsearch-tutorial-inverted-index.html
     * https://www.manning.com/books/elasticsearch-in-action
     * https://medium.com/elasticsearch/introduction-to-analysis-and-analyzers-in-elasticsearch-4cf24d49ddab
+    * https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-mapping-charfilter.html
 
 ## elasticsearch
 * document
@@ -71,7 +72,9 @@
     * steps
         * character filtering — transforms the characters using a character filter
             * are used to transform particular character sequences into other character sequences
-            * example stripping HTML out of text, or '4' -> 'for', '2' -> 'too', 'U' -> 'you'
+            * example
+                * stripping HTML out of text
+                * '4' -> 'for', '2' -> 'too', 'U' -> 'you'
         * breaking text into tokens — breaks the text into a set of one or more tokens
             * token - smaller, meaningful string
             * lucene itself doesn’t act on large strings of data; instead, it acts on what are known as tokens
