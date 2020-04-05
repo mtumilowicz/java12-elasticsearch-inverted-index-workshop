@@ -57,6 +57,13 @@
             * lucene itself doesn’t act on large strings of data; instead, it acts on what are known as tokens
             * example: splitting text into tokens based on whitespace
         * token filtering — transforms each token using a token filter
-            * example: lowercase token filter, 'Good' -> 'good'
-            * there could be more than one token filter
+            * example
+                * lowercase token filter, 'Good' -> 'good'
+                * removing the stopwords ('and', 'the', ...)
+                * adding synonyms
         * token indexing — stores those tokens into the index
+            * sent to Lucene to be indexed for the document
+            * make up the inverted index
+* inverted indexing
+    * Lucene data structure where it keeps a list of where each word belong
+    * example: index in the book with words and what pages they appear
