@@ -1,4 +1,4 @@
-package filter;
+package filter.character;
 
 import lombok.AllArgsConstructor;
 
