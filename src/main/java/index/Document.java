@@ -1,15 +1,17 @@
 package index;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.stream.Stream;
 
 @Getter
 class Document {
-    String id;
-    String body;
+    DocumentId id;
+    String content;
 
-    Stream<String> fieldValues() {
-        return Stream.ofNullable(body);
+    Stream<String> content() {
+        return Stream.ofNullable(content);
     }
 }
+

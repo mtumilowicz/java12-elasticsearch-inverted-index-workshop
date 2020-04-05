@@ -7,13 +7,13 @@ import java.util.Set;
 
 public class InvertedIndex {
 
-    Map<String, Set<String>> index = new HashMap<>();
+    Map<String, Set<DocumentId>> index = new HashMap<>();
 
-    void put(String token) {
-        index.computeIfAbsent(token, ignore -> new HashSet<>()).add(token);
+    void put(String token, DocumentId id) {
+        index.computeIfAbsent(token, ignore -> new HashSet<>()).add(id);
     }
 
-    Set<String> get(String token) {
+    Set<DocumentId> get(String token) {
         return index.get(token);
     }
 
