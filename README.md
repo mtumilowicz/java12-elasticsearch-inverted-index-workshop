@@ -95,3 +95,22 @@
         forwards the search request to it
         * Elasticsearch then gathers results from those shards, aggregates them into a single reply, and forwards 
         the reply back to the client application
+    * as you add more nodes to the same cluster, existing shards get balanced between all nodes
+* segment
+    * segment is a chunk of the Lucene index (or a shard, in Elasticsearch terminology) that is created when you’re 
+    indexing
+    * segments are never appended—only new ones are created as you index new documents
+    * data is never removed from them because deleting only marks documents as deleted
+    * finally, data never changes because updating documents implies re-indexing
+    * when Elasticsearch is performing a query on a shard, Lucene has to query all its segments, merge the results, 
+    and send them back—much like the process of querying multiple shards within an index. As with shards, the more 
+    segments you have to go though, the slower the search
+    * normal indexing operations create many such small segments
+        * to avoid having an extremely large number of segments in an index, Lucene merges them from time to time
+    * merging some documents implies reading their contents, excluding the deleted documents, and creating new and 
+    bigger segments with their combined content. This process requires resources—specifically, CPU and disk I/O
+    * merges run asynchronously
+    * because they don’t change, segments are easily cached, making searches fast
+    * updating a document can’t change the actual document; it can only index a new one
+    * default merge policy is tiered, divides segments into tiers, and if you have more than the set maximum number 
+    of segments in a tier, a merge is triggered in that tier
