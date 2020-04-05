@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 import static java.util.function.Predicate.not;
 
-public class StopWordTokenFilter implements Function<Stream<String>, Stream<String>> {
+public class StopWordTokenFilter implements TokenFilter {
 
     private static Set<String> stopWords = Set.of("a", "the", "however");
 
