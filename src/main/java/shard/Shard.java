@@ -2,13 +2,13 @@ package shard;
 
 import document.Document;
 import document.DocumentId;
+import index.DocumentStore;
 import index.InvertedIndex;
 import index.Match;
 import pipeline.AnalyzingPipeline;
 import pipeline.StandardPipeline;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,12 +19,12 @@ public class Shard {
 
     InvertedIndex invertedIndex = new InvertedIndex();
 
-    Map<DocumentId, Document> documents = new HashMap<>();
+    DocumentStore documents = new DocumentStore();
 
     AnalyzingPipeline pipeline = new StandardPipeline();
 
     void index(Document document) {
-        documents.put(document.getId(), document);
+        documents.save(document);
         pipeline.analyze(document.getContent())
                 .forEach(token -> invertedIndex.put(token, document.getId()));
     }
