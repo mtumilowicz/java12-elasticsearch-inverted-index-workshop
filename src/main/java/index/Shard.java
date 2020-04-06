@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Shard {
     InvertedIndex invertedIndex = new InvertedIndex();
@@ -20,7 +19,7 @@ public class Shard {
                 .forEach(token -> invertedIndex.put(token, document.id));
     }
 
-    Set<Index> find(String string) {
+    Set<IndexEntries> find(String string) {
         return pipeline.analyze(string)
                 .map(invertedIndex::get)
                 .collect(Collectors.toSet());

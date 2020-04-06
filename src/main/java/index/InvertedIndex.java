@@ -4,17 +4,17 @@ import tokenizer.Token;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class InvertedIndex {
 
-    Map<Token, Index> index = new HashMap<>();
+    Map<Token, IndexEntries> index = new HashMap<>();
 
     void put(Token token, DocumentId documentId) {
-        index.compute(token, (k, index) -> Objects.isNull(index) ? Index.init(documentId, token) : index.incrementFrequency());
+        index.computeIfAbsent(token, ignore -> new IndexEntries()).put(documentId, token);
+
     }
 
-    Index get(Token token) {
+    IndexEntries get(Token token) {
         return index.get(token);
     }
 
