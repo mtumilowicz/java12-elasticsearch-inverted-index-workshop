@@ -8,28 +8,17 @@ import java.util.stream.Stream;
 
 public class InvertedIndex {
 
-    private final Map<Token, Set<DocumentId>> index = new HashMap<>();
+    private final Map<Token, Set<DocumentId>> invertedIndex = new HashMap<>();
 
-    private final Map<Token, Map<DocumentId, Frequency>> stats = new HashMap<>();
+    private final Statistics statistics = new Statistics();
 
     public void put(Token token, DocumentId documentId) {
-        index.computeIfAbsent(token, ignore -> new HashSet<>()).add(documentId);
-        stats.computeIfAbsent(token, ignore -> new HashMap<>())
-                .computeIfAbsent(documentId, ignore -> Frequency.zero())
-                .increment();
-
+        invertedIndex.computeIfAbsent(token, ignore -> new HashSet<>()).add(documentId);
+        statistics.put(token, documentId);
     }
 
     public Set<DocumentId> getDocumentsContaining(Token token) {
-        return index.getOrDefault(token, Collections.emptySet());
-    }
-
-    public Map<DocumentId, Frequency> frequenciesOf(Token token) {
-        return stats.getOrDefault(token, Collections.emptyMap());
-    }
-
-    public Frequency frequenciesInDocument(Token token, DocumentId documentId) {
-        return frequenciesOf(token).getOrDefault(documentId, Frequency.zero());
+        return invertedIndex.getOrDefault(token, Collections.emptySet());
     }
 
     public Frequency generalFrequency(Token token) {
@@ -42,7 +31,7 @@ public class InvertedIndex {
                 .map(documentId -> Match.builder()
                         .token(token)
                         .documentId(documentId)
-                        .frequency(frequenciesInDocument(token, documentId))
+                        .frequency(statistics.frequenciesInDocument(token, documentId))
                         .build());
     }
 
