@@ -8,8 +8,9 @@ import java.util.stream.Stream;
 
 public class InvertedIndex {
 
-    Map<Token, Set<DocumentId>> index = new HashMap<>();
-    Map<Token, Map<DocumentId, Frequency>> stats = new HashMap<>();
+    private final Map<Token, Set<DocumentId>> index = new HashMap<>();
+
+    private final Map<Token, Map<DocumentId, Frequency>> stats = new HashMap<>();
 
     public void put(Token token, DocumentId documentId) {
         index.computeIfAbsent(token, ignore -> new HashSet<>()).add(documentId);
