@@ -31,14 +31,18 @@ public class InvertedIndex {
         return frequenciesOf(token).getOrDefault(documentId, Frequency.zero());
     }
 
-    public GeneralFrequency generalFrequency(Token token) {
-        return new GeneralFrequency(getDocumentsContaining(token).size());
+    public Frequency generalFrequency(Token token) {
+        return new Frequency(getDocumentsContaining(token).size());
     }
 
     public Stream<Match> get(Token token) {
         return getDocumentsContaining(token)
                 .stream()
-                .map(documentId -> new Match(documentId, frequenciesInDocument(token, documentId), generalFrequency(token)));
+                .map(documentId -> Match.builder()
+                        .token(token)
+                        .documentId(documentId)
+                        .frequency(frequenciesInDocument(token, documentId))
+                        .build());
     }
 
 }

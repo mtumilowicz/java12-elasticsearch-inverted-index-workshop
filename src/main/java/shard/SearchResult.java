@@ -1,11 +1,8 @@
 package shard;
 
-import document.Document;
 import document.DocumentId;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.Map;
 
 @RequiredArgsConstructor

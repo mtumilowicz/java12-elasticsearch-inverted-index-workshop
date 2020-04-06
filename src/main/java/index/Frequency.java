@@ -21,7 +21,7 @@ public class Frequency {
         return frequency;
     }
 
-    public BigDecimal divide(GeneralFrequency frequency) {
-        return BigDecimal.valueOf(raw()).divide(BigDecimal.valueOf(frequency.raw()));
+    public BigDecimal divide(Frequency divisor) {
+        return BigDecimal.valueOf(raw()).divide(BigDecimal.valueOf(divisor.raw()));
     }
 }

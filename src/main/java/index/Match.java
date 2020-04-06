@@ -1,20 +1,24 @@
 package index;
 
 import document.DocumentId;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import tokenizer.Token;
 
 import java.math.BigDecimal;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
-@AllArgsConstructor
+@Builder
 @Getter
 public class Match {
-    DocumentId documentId;
-    Frequency frequency;
-    GeneralFrequency generalFrequency;
 
-    public BigDecimal evaluate(BiFunction<Frequency, GeneralFrequency, BigDecimal> calc) {
-        return calc.apply(frequency, generalFrequency);
+    DocumentId documentId;
+
+    Token token;
+
+    Frequency frequency;
+
+    public BigDecimal evaluate(Function<Frequency, BigDecimal> calc) {
+        return calc.apply(frequency);
     }
 }
