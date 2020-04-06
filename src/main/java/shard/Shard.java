@@ -37,10 +37,11 @@ public class Shard {
                 .collect(Collectors.toSet());
     }
 
-    BigDecimal evaluateScore(List<Match> stats) {
-        return stats.stream()
+    Score evaluateScore(List<Match> stats) {
+        var value = stats.stream()
                 .map(x -> x.evaluate(Frequency::divide))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return Score.of(value);
     }
 }
 
