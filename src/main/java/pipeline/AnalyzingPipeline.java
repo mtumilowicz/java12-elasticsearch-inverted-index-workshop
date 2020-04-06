@@ -15,7 +15,7 @@ public interface AnalyzingPipeline {
 
     TokenFilter tokenFilter();
 
-    default Stream<Token> analyze(Stream<String> string) {
+    default Stream<Token> analyze(String string) {
         return tokenFilter().compose(tokenizer().compose(characterFilter())).apply(string);
     }
 }

@@ -1,7 +1,6 @@
 package filter.character;
 
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class ArabicNumbersCharacterFilter implements CharacterFilter {
@@ -26,7 +25,7 @@ public class ArabicNumbersCharacterFilter implements CharacterFilter {
     }
 
     @Override
-    public Stream<String> apply(Stream<String> string) {
+    public String apply(String string) {
         return filter.apply(string);
     }
 }

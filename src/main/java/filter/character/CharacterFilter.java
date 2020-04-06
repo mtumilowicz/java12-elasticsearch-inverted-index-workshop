@@ -1,9 +1,8 @@
 package filter.character;
 
 import java.util.function.UnaryOperator;
-import java.util.stream.Stream;
 
-public interface CharacterFilter extends UnaryOperator<Stream<String>> {
+public interface CharacterFilter extends UnaryOperator<String> {
 
     default CharacterFilter andThen(CharacterFilter after) {
         return t -> after.apply(apply(t));

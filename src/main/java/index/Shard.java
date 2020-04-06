@@ -16,12 +16,12 @@ public class Shard {
 
     void index(Document document) {
         documents.put(document.id, document);
-        pipeline.analyze(document.content())
+        pipeline.analyze(document.content)
                 .forEach(token -> invertedIndex.put(token, document.id));
     }
 
     Set<Index> find(String string) {
-        return pipeline.analyze(Stream.of(string))
+        return pipeline.analyze(string)
                 .map(invertedIndex::get)
                 .collect(Collectors.toSet());
     }
