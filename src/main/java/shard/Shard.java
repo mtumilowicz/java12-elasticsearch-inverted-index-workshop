@@ -1,5 +1,9 @@
-package index;
+package shard;
 
+import document.Document;
+import document.DocumentId;
+import index.IndexEntries;
+import index.InvertedIndex;
 import pipeline.AnalyzingPipeline;
 import pipeline.StandardPipeline;
 
@@ -14,9 +18,9 @@ public class Shard {
     AnalyzingPipeline pipeline = new StandardPipeline();
 
     void index(Document document) {
-        documents.put(document.id, document);
-        pipeline.analyze(document.content)
-                .forEach(token -> invertedIndex.put(token, document.id));
+        documents.put(document.getId(), document);
+        pipeline.analyze(document.getContent())
+                .forEach(token -> invertedIndex.put(token, document.getId()));
     }
 
     Set<IndexEntries> find(String string) {

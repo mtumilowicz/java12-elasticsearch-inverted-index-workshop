@@ -1,5 +1,6 @@
 package index;
 
+import document.DocumentId;
 import lombok.RequiredArgsConstructor;
 import tokenizer.Token;
 
