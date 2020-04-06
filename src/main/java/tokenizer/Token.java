@@ -1,20 +1,20 @@
 package tokenizer;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 
-@RequiredArgsConstructor
 @EqualsAndHashCode
 @Getter
+@ToString
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class Token {
+
     private final String token;
 
-    public static Token of(String x) {
-        return new Token(x);
+    public static Token of(String token) {
+        return new Token(token);
     }
 
     Token map(UnaryOperator<String> mapper) {

@@ -8,10 +8,10 @@ class BracketCharacterFilterTest extends Specification {
 
     def 'filtering'() {
         given:
-        def input = '{ a ( 2 b ) c ] [ d ] e f g } h 3'
+        def input = '{ a ( 2 b ) c ][][ d ] e f g } h 3'
 
         expect:
-        filter.apply(input) == '( a ( 2 b ) c ) ( d ) e f g ) h 3'
+        filter.apply(input) == '( a ( 2 b ) c )()( d ) e f g ) h 3'
     }
 
 }
