@@ -27,13 +27,14 @@ public class Shard {
     }
 
     Set<SearchResult> find(String string) {
-        var collect = pipeline.analyze(string)
+        Map<DocumentId, Score> scores = pipeline.analyze(string)
                 .flatMap(token -> invertedIndex.get(token))
-                .collect(Collectors.groupingBy(Match::getDocumentId, Collectors.collectingAndThen(Collectors.toList(), this::evaluateScore)));
+                .collect(Collectors.groupingBy(Match::getDocumentId,
+                        Collectors.collectingAndThen(Collectors.toList(), this::evaluateScore)));
 
-        return collect.entrySet()
+        return scores.entrySet()
                 .stream()
-                .map(x -> SearchResult.of(x.getKey(), x.getValue()))
+                .map(SearchResult::of)
                 .collect(Collectors.toSet());
     }
 
