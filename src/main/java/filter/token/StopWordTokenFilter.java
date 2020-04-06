@@ -1,17 +1,15 @@
 package filter.token;
 
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Stream;
+import tokenizer.Token;
 
-import static java.util.function.Predicate.not;
+import java.util.stream.Stream;
 
 public class StopWordTokenFilter implements TokenFilter {
 
-    private static Set<String> stopWords = Set.of("a", "the", "however");
+    private static Stream<String> stopWords = Stream.of("a", "the", "however");
 
     @Override
-    public Stream<String> apply(Stream<String> tokens) {
-        return tokens.filter(not(stopWords::contains));
+    public Stream<Token> apply(Stream<Token> tokens) {
+        return tokens.filter(token -> stopWords.anyMatch(token::isEqual));
     }
 }
