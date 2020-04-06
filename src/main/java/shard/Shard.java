@@ -2,14 +2,15 @@ package shard;
 
 import document.Document;
 import document.DocumentId;
-import index.Frequency;
-import index.IndexEntries;
 import index.InvertedIndex;
-import index.TokenStats;
+import index.Yyy;
 import pipeline.AnalyzingPipeline;
 import pipeline.StandardPipeline;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Shard {
@@ -24,11 +25,11 @@ public class Shard {
     }
 
     Set<SearchResult> find(String string) {
-        Map<DocumentId, Long> collect = pipeline.analyze(string)
-                .map(invertedIndex::get)
-                .map(IndexEntries::getStats)
-                .flatMap(Collection::stream)
-                .collect(Collectors.groupingBy(TokenStats::getDocumentId, Collectors.collectingAndThen(Collectors.toList(), this::evaluateScore)));
+        // token1, ... token10
+        // (d1, 15, 300) d2, 30, ...,
+        var collect = pipeline.analyze(string)
+                .flatMap(token -> invertedIndex.get(token))
+                .collect(Collectors.groupingBy(Yyy::getDocumentId, Collectors.collectingAndThen(Collectors.toList(), this::evaluateScore)));
 
         return collect.entrySet()
                 .stream()
@@ -36,10 +37,9 @@ public class Shard {
                 .collect(Collectors.toSet());
     }
 
-    Long evaluateScore(List<TokenStats> stats) {
+    Long evaluateScore(List<Yyy> stats) {
         return stats.stream()
-                .map(TokenStats::getFrequency)
-                .mapToLong(Frequency::raw)
+                .mapToLong(x -> x.getFrequency().raw() / x.getGeneralFrequency().raw())
                 .sum();
     }
 }

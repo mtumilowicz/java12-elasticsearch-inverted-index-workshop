@@ -1,10 +1,13 @@
 package index;
 
+import document.Document;
 import document.DocumentId;
+import lombok.AllArgsConstructor;
 import tokenizer.Token;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class InvertedIndex {
 
@@ -15,8 +18,8 @@ public class InvertedIndex {
 
     }
 
-    public IndexEntries get(Token token) {
-        return index.get(token);
+    public Stream<Yyy> get(Token token) {
+        return index.get(token).stream();
     }
 
 }

@@ -5,6 +5,7 @@ import tokenizer.Token;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 public class IndexEntries {
     private final Map<DocumentId, TokenStats> map = new HashMap<>();
@@ -21,5 +22,9 @@ public class IndexEntries {
 
     public List<TokenStats> getStats() {
         return new LinkedList<>(map.values());
+    }
+
+    public Stream<Yyy> stream() {
+        return map.entrySet().stream().map(x -> new Yyy(x.getKey(), x.getValue().getFrequency(), new Frequency(map.size())));
     }
 }
