@@ -1,6 +1,6 @@
 package pipeline;
 
-import filter.character.ArabicNumbersCharacterFilter;
+import filter.character.BracketCharacterFilter;
 import filter.character.CharacterFilter;
 import filter.token.LowercaseTokenFilter;
 import filter.token.StopWordTokenFilter;
@@ -10,7 +10,7 @@ import tokenizer.Tokenizer;
 
 public class StandardPipeline implements AnalyzingPipeline {
 
-    private final CharacterFilter characterFilter = new ArabicNumbersCharacterFilter();
+    private final CharacterFilter characterFilter = new BracketCharacterFilter();
 
     private final Tokenizer tokenizer = new SpaceTokenizer();
 
