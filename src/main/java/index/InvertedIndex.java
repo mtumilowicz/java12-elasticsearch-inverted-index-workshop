@@ -3,10 +3,7 @@ package index;
 import document.DocumentId;
 import tokenizer.Token;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class InvertedIndex {
@@ -22,10 +19,26 @@ public class InvertedIndex {
 
     }
 
-    public Stream<Yyy> get(Token token) {
-        return index.getOrDefault(token, new HashSet<>())
+    public Set<DocumentId> getDocumentsContaining(Token token) {
+        return index.getOrDefault(token, Collections.emptySet());
+    }
+
+    public Map<DocumentId, Frequency> frequenciesOf(Token token) {
+        return stats.getOrDefault(token, Collections.emptyMap());
+    }
+
+    public Frequency frequenciesInDocument(Token token, DocumentId documentId) {
+        return frequenciesOf(token).getOrDefault(documentId, Frequency.zero());
+    }
+
+    public GeneralFrequency generalFrequency(Token token) {
+        return new GeneralFrequency(getDocumentsContaining(token).size());
+    }
+
+    public Stream<Match> get(Token token) {
+        return getDocumentsContaining(token)
                 .stream()
-                .map(x -> new Yyy(x, stats.get(token).get(x), new Frequency(index.get(token).size())));
+                .map(documentId -> new Match(documentId, frequenciesInDocument(token, documentId), generalFrequency(token)));
     }
 
 }

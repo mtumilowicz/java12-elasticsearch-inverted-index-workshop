@@ -2,11 +2,13 @@ package shard;
 
 import document.Document;
 import document.DocumentId;
+import index.Frequency;
 import index.InvertedIndex;
-import index.Yyy;
+import index.Match;
 import pipeline.AnalyzingPipeline;
 import pipeline.StandardPipeline;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,11 +27,9 @@ public class Shard {
     }
 
     Set<SearchResult> find(String string) {
-        // token1, ... token10
-        // (d1, 15, 300) d2, 30, ...,
         var collect = pipeline.analyze(string)
                 .flatMap(token -> invertedIndex.get(token))
-                .collect(Collectors.groupingBy(Yyy::getDocumentId, Collectors.collectingAndThen(Collectors.toList(), this::evaluateScore)));
+                .collect(Collectors.groupingBy(Match::getDocumentId, Collectors.collectingAndThen(Collectors.toList(), this::evaluateScore)));
 
         return collect.entrySet()
                 .stream()
@@ -37,10 +37,10 @@ public class Shard {
                 .collect(Collectors.toSet());
     }
 
-    Long evaluateScore(List<Yyy> stats) {
+    BigDecimal evaluateScore(List<Match> stats) {
         return stats.stream()
-                .mapToLong(x -> x.getFrequency().raw() / x.getGeneralFrequency().raw())
-                .sum();
+                .map(x -> x.evaluate(Frequency::divide))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }
 

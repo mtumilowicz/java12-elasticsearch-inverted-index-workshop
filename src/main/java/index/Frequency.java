@@ -2,6 +2,8 @@ package index;
 
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
+
 @RequiredArgsConstructor
 public class Frequency {
 
@@ -17,5 +19,9 @@ public class Frequency {
 
     public long raw() {
         return frequency;
+    }
+
+    public BigDecimal divide(GeneralFrequency frequency) {
+        return BigDecimal.valueOf(raw()).divide(BigDecimal.valueOf(frequency.raw()));
     }
 }

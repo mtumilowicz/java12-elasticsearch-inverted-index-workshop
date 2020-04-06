@@ -10,9 +10,9 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 class SearchResult {
     private final DocumentId documentId;
-    private final Long score;
+    private final BigDecimal score;
 
-    static SearchResult of(DocumentId documentId, Long score) {
+    static SearchResult of(DocumentId documentId, BigDecimal score) {
         return new SearchResult(documentId, score);
     }
 }
