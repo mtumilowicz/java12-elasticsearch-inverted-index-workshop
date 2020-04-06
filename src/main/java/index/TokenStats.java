@@ -1,11 +1,13 @@
 package index;
 
 import document.DocumentId;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import tokenizer.Token;
 
 @RequiredArgsConstructor
-class TokenStats {
+@Getter
+public class TokenStats {
     private final DocumentId documentId;
     private final Token token;
     private final Frequency frequency;

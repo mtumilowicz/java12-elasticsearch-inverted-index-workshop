@@ -3,18 +3,19 @@ package index;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-class Frequency {
-    private final Long frequency;
+public class Frequency {
 
-    Frequency of(Long frequency) {
-        return new Frequency(frequency);
-    }
+    private final long frequency;
 
     static Frequency zero() {
-        return new Frequency(0L);
+        return new Frequency(0);
     }
 
     Frequency increment() {
         return new Frequency(frequency + 1);
+    }
+
+    public long raw() {
+        return frequency;
     }
 }

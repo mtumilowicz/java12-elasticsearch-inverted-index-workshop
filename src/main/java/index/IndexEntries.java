@@ -3,9 +3,7 @@ package index;
 import document.DocumentId;
 import tokenizer.Token;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiFunction;
 
 public class IndexEntries {
@@ -19,5 +17,9 @@ public class IndexEntries {
         return (docId, tokenStats) -> Objects.isNull(tokenStats)
                 ? TokenStats.init(docId, token)
                 : tokenStats.incrementFrequency();
+    }
+
+    public List<TokenStats> getStats() {
+        return new LinkedList<>(map.values());
     }
 }
