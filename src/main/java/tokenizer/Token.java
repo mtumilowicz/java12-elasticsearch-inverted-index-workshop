@@ -3,6 +3,7 @@ package tokenizer;
 import lombok.*;
 
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.UnaryOperator;
 
 @EqualsAndHashCode
@@ -25,7 +26,7 @@ public class Token {
         return map(String::toLowerCase);
     }
 
-    public boolean isEqual(String expression) {
-        return Objects.equals(token, expression);
+    public boolean notIn(Set<String> strings) {
+        return !strings.contains(token);
     }
 }

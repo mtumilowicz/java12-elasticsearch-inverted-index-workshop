@@ -2,14 +2,21 @@ package filter.token;
 
 import tokenizer.Token;
 
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class StopWordTokenFilter implements TokenFilter {
 
-    private static Stream<String> stopWords = Stream.of("a", "the", "however");
+    private static Set<String> stopWords = Set.of(
+            "a",
+            "however",
+            "is",
+            "my",
+            "the"
+    );
 
     @Override
     public Stream<Token> apply(Stream<Token> tokens) {
-        return tokens.filter(token -> stopWords.anyMatch(token::isEqual));
+        return tokens.filter(token -> token.notIn(stopWords));
     }
 }

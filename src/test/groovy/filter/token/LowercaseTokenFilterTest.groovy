@@ -4,7 +4,6 @@ import spock.lang.Specification
 import tokenizer.Token
 
 import java.util.stream.Collectors
-import java.util.stream.Stream
 
 class LowercaseTokenFilterTest extends Specification {
 
@@ -12,28 +11,10 @@ class LowercaseTokenFilterTest extends Specification {
 
     def 'filtering'() {
         given:
-        def input = [
-                Token.of('A'),
-                Token.of('a'),
-                Token.of('B'),
-                Token.of('B'),
-                Token.of('C'),
-                Token.of('d'),
-                Token.of('e'),
-                Token.of('F')
-                ]
+        def input = ['A', 'a', 'B', 'B', 'C', 'd', 'e', 'F'].collect { Token.of(it) }
 
         and:
-        def expectedOutput = [
-                Token.of('a'),
-                Token.of('a'),
-                Token.of('b'),
-                Token.of('b'),
-                Token.of('c'),
-                Token.of('d'),
-                Token.of('e'),
-                Token.of('f')
-        ]
+        def expectedOutput = ['a', 'a', 'b', 'b', 'c', 'd', 'e', 'f'].collect { Token.of(it) }
 
         expect:
         filter.apply(input.stream()).collect(Collectors.toList()) == expectedOutput
