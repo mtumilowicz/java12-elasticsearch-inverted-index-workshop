@@ -1,5 +1,6 @@
 package filter.character
 
+import analysis.filter.character.BracketCharacterFilter
 import spock.lang.Specification
 
 class BracketCharacterFilterTest extends Specification {

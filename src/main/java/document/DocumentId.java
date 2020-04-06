@@ -6,5 +6,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EqualsAndHashCode
 public class DocumentId {
+
    private final String id;
+
+   DocumentId of(String id) {
+      return new DocumentId(id);
+   }
 }

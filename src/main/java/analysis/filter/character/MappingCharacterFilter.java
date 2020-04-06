@@ -1,4 +1,4 @@
-package filter.character;
+package analysis.filter.character;
 
 import lombok.RequiredArgsConstructor;
 

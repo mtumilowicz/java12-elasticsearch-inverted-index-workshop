@@ -1,8 +1,7 @@
-package tokenizer;
+package analysis.tokenizer;
 
 import lombok.*;
 
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 

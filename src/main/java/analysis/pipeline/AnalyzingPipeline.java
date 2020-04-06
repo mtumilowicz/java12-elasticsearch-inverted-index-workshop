@@ -1,9 +1,9 @@
-package pipeline;
+package analysis.pipeline;
 
-import filter.character.CharacterFilter;
-import filter.token.TokenFilter;
-import tokenizer.Token;
-import tokenizer.Tokenizer;
+import analysis.filter.character.CharacterFilter;
+import analysis.filter.token.TokenFilter;
+import analysis.tokenizer.Token;
+import analysis.tokenizer.Tokenizer;
 
 import java.util.stream.Stream;
 

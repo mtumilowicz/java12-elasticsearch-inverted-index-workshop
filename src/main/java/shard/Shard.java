@@ -2,11 +2,11 @@ package shard;
 
 import document.Document;
 import document.DocumentId;
-import index.DocumentStore;
+import document.DocumentStore;
 import index.InvertedIndex;
 import index.Match;
-import pipeline.AnalyzingPipeline;
-import pipeline.StandardPipeline;
+import analysis.pipeline.AnalyzingPipeline;
+import analysis.pipeline.StandardPipeline;
 
 import java.math.BigDecimal;
 import java.util.List;

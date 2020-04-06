@@ -1,7 +1,7 @@
 package index;
 
 import document.DocumentId;
-import tokenizer.Token;
+import analysis.tokenizer.Token;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 
 class Statistics {
+
     private final Map<Token, Map<DocumentId, Frequency>> stats = new HashMap<>();
 
     void put(Token token, DocumentId documentId) {

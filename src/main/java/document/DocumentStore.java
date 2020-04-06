@@ -1,4 +1,4 @@
-package index;
+package document;
 
 import document.Document;
 import document.DocumentId;

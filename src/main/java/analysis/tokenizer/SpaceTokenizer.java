@@ -1,4 +1,4 @@
-package tokenizer;
+package analysis.tokenizer;
 
 import java.util.stream.Stream;
 

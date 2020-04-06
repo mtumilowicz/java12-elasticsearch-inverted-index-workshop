@@ -1,13 +1,14 @@
 package document;
 
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public
-class Document {
+@Builder
+public class Document {
 
-    DocumentId id;
+    private DocumentId id;
 
-    String content;
+    private String content;
 }
 

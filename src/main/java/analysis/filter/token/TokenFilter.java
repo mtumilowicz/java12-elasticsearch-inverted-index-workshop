@@ -1,6 +1,6 @@
-package filter.token;
+package analysis.filter.token;
 
-import tokenizer.Token;
+import analysis.tokenizer.Token;
 
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;

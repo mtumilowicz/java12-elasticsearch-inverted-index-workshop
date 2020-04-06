@@ -3,13 +3,15 @@ package index;
 import document.DocumentId;
 import lombok.Builder;
 import lombok.Getter;
-import tokenizer.Token;
+import analysis.tokenizer.Token;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.function.Function;
 
 @Builder
 @Getter
+@ToString
 public class Match {
 
     DocumentId documentId;

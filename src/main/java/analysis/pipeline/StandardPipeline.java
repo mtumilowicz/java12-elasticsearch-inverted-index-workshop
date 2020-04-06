@@ -1,12 +1,12 @@
-package pipeline;
+package analysis.pipeline;
 
-import filter.character.BracketCharacterFilter;
-import filter.character.CharacterFilter;
-import filter.token.LowercaseTokenFilter;
-import filter.token.StopWordTokenFilter;
-import filter.token.TokenFilter;
-import tokenizer.SpaceTokenizer;
-import tokenizer.Tokenizer;
+import analysis.filter.character.BracketCharacterFilter;
+import analysis.filter.character.CharacterFilter;
+import analysis.filter.token.LowercaseTokenFilter;
+import analysis.filter.token.StopWordTokenFilter;
+import analysis.filter.token.TokenFilter;
+import analysis.tokenizer.SpaceTokenizer;
+import analysis.tokenizer.Tokenizer;
 
 public class StandardPipeline implements AnalyzingPipeline {
 

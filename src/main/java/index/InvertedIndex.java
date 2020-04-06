@@ -1,7 +1,7 @@
 package index;
 
 import document.DocumentId;
-import tokenizer.Token;
+import analysis.tokenizer.Token;
 
 import java.util.*;
 import java.util.stream.Stream;

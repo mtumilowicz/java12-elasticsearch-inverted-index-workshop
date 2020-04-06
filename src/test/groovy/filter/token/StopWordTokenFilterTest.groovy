@@ -1,7 +1,8 @@
 package filter.token
 
+import analysis.filter.token.StopWordTokenFilter
 import spock.lang.Specification
-import tokenizer.Token
+import analysis.tokenizer.Token
 
 import java.util.stream.Collectors
 
