@@ -64,35 +64,31 @@
       * the memory buffer is full
       * time since last flush
       * the transaction log hit a threshold
+* inverted indexing
+    * Lucene data structure where it keeps a list of where each word belong
+    * example: index in the book with words and what pages they appear
 * analysis
     ![alt text](img/analysis_overview.png)
     ![alt text](img/analysis_example.png)
-    * is the process Elasticsearch performs on the body of a document before the document is sent off to be added to 
-    the inverted index
-        * the same process is then applied to the query string
     * steps
-        * character filtering — transforms the characters using a character filter
-            * are used to transform particular character sequences into other character sequences
+        * character filtering — transform character sequences into character sequences
             * example
                 * stripping HTML out of text
                 * '4' -> 'for', '2' -> 'too', 'U' -> 'you'
-        * breaking text into tokens — breaks the text into a set of one or more tokens
+        * breaking text into tokens — breaks the text into one or more tokens
             * token - smaller, meaningful string
-            * lucene itself doesn’t act on large strings of data; instead, it acts on what are known as tokens
-            * example: splitting text into tokens based on whitespace
+            * lucene itself doesn’t act on large strings but on tokens
+            * example: splitting text into tokens based on whitespaces
         * token filtering — transforms each token using a token filter
             * example
                 * lowercase token filter, 'Good' -> 'good'
-                * removing the stopwords ('and', 'the', ...)
+                * removing the stopwords ('and', 'the', 'my')
                 * adding synonyms
         * token indexing — stores those tokens into the index
             * sent to Lucene to be indexed for the document
             * make up the inverted index
-    * The analysis chain that is applied to a full-text field during indexing is also used at search time. 
-        * When you query a full-text field, the query text undergoes the same analysis before the terms are looked up in the index
-* inverted indexing
-    * Lucene data structure where it keeps a list of where each word belong
-    * example: index in the book with words and what pages they appear
+    * analysis chain during full-text field indexing is also used at search time
+        * the query text undergoes the same analysis before the terms are looked up in the index
 * node
     * node is an instance of Elasticsearch
     * multiple nodes can join the same cluster
@@ -104,56 +100,47 @@
         * Balancing shards in a cluster across nodes in different data centers simply takes too long
         * Cross-cluster replication (CCR)
 * shard
-    * an Elasticsearch index is really just a logical grouping of one or more physical shards, where each shard is 
-    actually a self-contained index
-    *  By distributing the documents in an index across multiple shards, and distributing those shards across multiple 
-    nodes, Elasticsearch can ensure redundancy, which both protects against hardware failures and increases query 
-    capacity as nodes are added to a cluster
-    * There are two types of shards: primaries and replicas. Each document in an index belongs to one primary shard. 
-        * A replica shard is a copy of a primary shard.
-    * The number of primary shards in an index is fixed at the time that an index is created, but the number of replica 
-    shards can be changed at any time,
-    * the smallest unit Elasticsearch deals with
     * is a Lucene index: a directory of files containing an inverted index
-    * Elasticsearch index is broken down into chunks: shards
-    * stores the original document’s content plus additional information, such as term dictionary and term frequencies
-        * term dictionary maps each term to identifiers of documents containing that term
-        * term frequencies give Elasticsearch quick access to the number of appearances of a term in a document
+    * index is just a logical grouping of physical shards
+        * each shard is actually a self-contained index
+    * stores documents plus additional information (term dictionary, term frequencies)
+        * term dictionary: maps each term to identifiers of documents containing that term
+        * term frequencies: number of appearances of a term in a document
             * important for calculating the relevancy score of results
-            * by default, the ranking algorithm is TF-IDF
-    * replicas are exact copies of the primary shard
-    * replicas can be added or removed at runtime—primaries can’t
-    * by default, documents are distributed evenly between shards: for each document, the shard is determined by
-      hashing its ID string
-        * each shard has an equal hash range, with equal chances of receiving the new document
-        * once the target shard is determined, the current node forwards the document to the node holding that shard
-        * subsequently, that indexing operation is replayed by all the replicas of that shard
-    * with searching, the node that receives the request forwards it to a set of shards containing all your data
-        * using a round-robin, Elasticsearch selects an available shard (which can be primary or replica) and 
-        forwards the search request to it
-        * Elasticsearch then gathers results from those shards, aggregates them into a single reply, and forwards 
-        the reply back to the client application
+    * two types of shards: primaries and replicas. 
+        * each document belongs to one primary shard
+        * replica shard is a copy of a primary shard
+        * number of primary shards in an index is fixed at the time that an index is created
+            * number of replica shards can be changed at any time
+    * documents are distributed evenly between shards
+        * the shard is determined by hashing document id
+        * each shard has an equal hash range
+        * the current node forwards the document to the node holding that shard
+            * indexing operation is replayed by all the replicas of that shard
     * as you add more nodes to the same cluster, existing shards get balanced between all nodes
 * segment
-    * segment is a chunk of the Lucene index (or a shard, in Elasticsearch terminology) that is created when you’re 
-    indexing
-    * segments are never appended—only new ones are created as you index new documents
-    * data is never removed from them because deleting only marks documents as deleted
-    * finally, data never changes because updating documents implies re-indexing
-    * when Elasticsearch is performing a query on a shard, Lucene has to query all its segments, merge the results, 
-    and send them back—much like the process of querying multiple shards within an index. As with shards, the more 
-    segments you have to go though, the slower the search
-    * normal indexing operations create many such small segments
-        * to avoid having an extremely large number of segments in an index, Lucene merges them from time to time
-    * merging some documents implies reading their contents, excluding the deleted documents, and creating new and 
-    bigger segments with their combined content. This process requires resources—specifically, CPU and disk I/O
-    * merges run asynchronously
-    * because they don’t change, segments are easily cached, making searches fast
-    * updating a document can’t change the actual document; it can only index a new one
-    * default merge policy is tiered, divides segments into tiers, and if you have more than the set maximum number 
-    of segments in a tier, a merge is triggered in that tier
+    * is a chunk of the Lucene index
+    * segments are immutable
+        * new ones are created as you index new documents
+        * deleting only marks documents as deleted
+        * updating documents implies re-indexing
+            * updating a document can’t change the actual document; it can only index a new one
+        * are easily cached, making searches fast
+    * when query on a shard
+        * Lucene queries all its segments, merge the results, and send them back
+            * the more segments you have to go though, the slower the search
+    * merging
+        * normal indexing operations create many such small segments
+        * Lucene merges them from time to time
+        * implies reading contents, excluding the deleted documents, and creating new and bigger segments with combined 
+        content 
+        * process requires resources: CPU and disk I/O
+        * merges run asynchronously
+        * tiered - default merge policy
+            * segments divided into tiers
+            * if threshold hit in a tier, merge is triggered in that tier
 * scoring
-    * TF: The first way to think of scoring a document is to look at how often a term occurs in the text
-    * IDF: token is less important the more times it occurs across all of the documents in the index
+    * TF: how often a term occurs in the text
+    * IDF: the token's importance is inversely proportional to the number of occurrences across all of the documents
     * Lucene’s default scoring formula, known as TF-IDF
         * apart from normalization & other factors, in general, it is simply: `TF * 1/IDF`
