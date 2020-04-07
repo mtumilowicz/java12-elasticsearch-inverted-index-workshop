@@ -139,4 +139,7 @@
     * default merge policy is tiered, divides segments into tiers, and if you have more than the set maximum number 
     of segments in a tier, a merge is triggered in that tier
 * scoring
-    * TF-IDF
+    * TF: The first way to think of scoring a document is to look at how often a term occurs in the text
+    * IDF: token is less important the more times it occurs across all of the documents in the index
+    * Lucene’s default scoring formula, known as TF-IDF
+        * apart from normalization & other factors, in general, it is simply: `TF * 1/IDF`
