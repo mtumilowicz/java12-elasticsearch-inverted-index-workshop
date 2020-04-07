@@ -6,6 +6,7 @@
     * https://medium.com/elasticsearch/introduction-to-analysis-and-analyzers-in-elasticsearch-4cf24d49ddab
     * https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-mapping-charfilter.html
     * https://www.elastic.co/guide/en/elasticsearch/reference/7.6/index.html
+    * https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-primary-shard
 
 ## elasticsearch
 ### document
@@ -107,8 +108,9 @@
     * term dictionary: maps each term to identifiers of documents containing that term
     * term frequencies: number of appearances of a term in a document
         * important for calculating the relevancy score of results
-* two types of shards: primaries and replicas. 
-    * each document belongs to one primary shard
+* two types of shards: primaries and replicas
+    * each document is stored in a single primary shard
+        * it is indexed first on the primary shard, then on all replicas of the primary shard
     * replica shard is a copy of a primary shard
     * number of primary shards in an index is fixed at the time that an index is created
         * number of replica shards can be changed at any time
