@@ -13,7 +13,9 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Shard {
 
@@ -29,16 +31,26 @@ public class Shard {
                 .forEach(token -> invertedIndex.put(token, document.getId()));
     }
 
+    Document get(DocumentId documentId) {
+        return documents.load(documentId);
+    }
+
     Set<SearchResult> find(String string) {
-        Map<DocumentId, Score> scores = pipeline.analyze(string)
-                .flatMap(token -> invertedIndex.get(token))
-                .collect(Collectors.groupingBy(Match::getDocumentId,
-                        Collectors.collectingAndThen(Collectors.toList(), matches -> Match.score(matches, scoringStrategy()))));
+        Supplier<Stream<Match>> matches = () -> pipeline.analyze(string)
+                .flatMap(token -> invertedIndex.get(token));
+
+        Map<DocumentId, Score> scores = calculateScoresForEachDocument(matches);
 
         return scores.entrySet()
                 .stream()
                 .map(SearchResult::of)
                 .collect(Collectors.toSet());
+    }
+
+    private Map<DocumentId, Score> calculateScoresForEachDocument(Supplier<Stream<Match>> matches) {
+        return matches.get().collect(Collectors.groupingBy(Match::getDocumentId,
+                Collectors.collectingAndThen(Collectors.toList(),
+                        perDocumentMatches -> Match.reduce(perDocumentMatches, scoringStrategy()))));
     }
 
     private Function<Match, BigDecimal> scoringStrategy() {

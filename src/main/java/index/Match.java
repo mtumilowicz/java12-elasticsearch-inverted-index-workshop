@@ -21,7 +21,7 @@ public class Match {
 
     Frequency frequency;
 
-    public static Score score(List<Match> matches, Function<Match, BigDecimal> strategy) {
+    public static Score reduce(List<Match> matches, Function<Match, BigDecimal> strategy) {
         return matches.stream()
                 .map(strategy)
                 .map(Score::of)
