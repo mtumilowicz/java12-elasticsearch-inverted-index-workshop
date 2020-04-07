@@ -18,7 +18,7 @@ public class NoiseCharacterFilterWorkshop implements CharacterFilter {
     );
 
     @Override
-    public String apply(String string) {
+    public String apply(String term) {
         // remove all noise character from string, hint: string.split
         return "";
     }

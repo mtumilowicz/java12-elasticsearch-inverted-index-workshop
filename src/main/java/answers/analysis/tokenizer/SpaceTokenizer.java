@@ -7,8 +7,8 @@ public class SpaceTokenizer implements Tokenizer {
     private static final String SPACE = " ";
 
     @Override
-    public Stream<Token> apply(String string) {
-        return Stream.of(string.split(SPACE))
+    public Stream<Token> apply(String term) {
+        return Stream.of(term.split(SPACE))
                 .map(Token::of);
     }
 }

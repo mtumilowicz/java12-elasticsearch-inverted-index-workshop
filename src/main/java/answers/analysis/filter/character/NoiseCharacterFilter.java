@@ -16,8 +16,8 @@ public class NoiseCharacterFilter implements CharacterFilter {
     );
 
     @Override
-    public String apply(String string) {
-        return Stream.of(string.split(""))
+    public String apply(String term) {
+        return Stream.of(term.split(""))
                 .filter(not(NOISE::contains))
                 .collect(Collectors.joining());
     }
