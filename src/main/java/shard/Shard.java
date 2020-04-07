@@ -9,6 +9,7 @@ import index.InvertedIndex;
 import index.Match;
 import index.Score;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -40,10 +41,10 @@ public class Shard {
                 .collect(Collectors.toSet());
     }
 
-    private Function<Match, Score> scoringStrategy() {
+    private Function<Match, BigDecimal> scoringStrategy() {
         return match -> {
             var generalFrequency = invertedIndex.generalFrequency(match.getToken());
-            return match.evaluate(frequency -> frequency.divide(generalFrequency));
+            return match.getFrequency().divide(generalFrequency);
         };
     }
 }

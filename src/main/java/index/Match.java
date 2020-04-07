@@ -21,13 +21,10 @@ public class Match {
 
     Frequency frequency;
 
-    public Score evaluate(Function<Frequency, BigDecimal> calc) {
-        return Score.of(calc.apply(frequency));
-    }
-
-    public static Score score(List<Match> matches, Function<Match, Score> strategy) {
+    public static Score score(List<Match> matches, Function<Match, BigDecimal> strategy) {
         return matches.stream()
                 .map(strategy)
+                .map(Score::of)
                 .reduce(Score.ZERO, Score::add);
     }
 }
