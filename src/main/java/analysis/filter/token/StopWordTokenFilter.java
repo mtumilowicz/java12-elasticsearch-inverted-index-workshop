@@ -9,6 +9,8 @@ public class StopWordTokenFilter implements TokenFilter {
 
     private static Set<String> stopWords = Set.of(
             "a",
+            "and",
+            "as",
             "by",
             "in",
             "my",

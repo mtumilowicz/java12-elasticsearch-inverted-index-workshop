@@ -10,6 +10,8 @@ import index.Match;
 import index.Score;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -35,13 +37,14 @@ public class Shard {
         return documents.load(documentId);
     }
 
-    Set<SearchResult> find(String string) {
+    List<SearchResult> find(String string) {
         Map<DocumentId, Score> scores = calculateScoresForEachDocument(() -> findAllMatches(string));
 
         return scores.entrySet()
                 .stream()
                 .map(SearchResult::of)
-                .collect(Collectors.toSet());
+                .sorted(Comparator.reverseOrder())
+                .collect(Collectors.toList());
     }
 
     private Stream<Match> findAllMatches(String string) {

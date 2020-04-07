@@ -1,12 +1,16 @@
 package index;
 
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.function.Function;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
+@EqualsAndHashCode
 public class Score implements Comparable<Score> {
 
     private final BigDecimal score;
