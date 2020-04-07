@@ -1,4 +1,4 @@
-package answers.shard;
+package workshop.shard;
 
 import answers.analysis.pipeline.AnalyzingPipeline;
 import answers.analysis.pipeline.StandardPipeline;
@@ -8,6 +8,9 @@ import answers.document.DocumentStore;
 import answers.index.InvertedIndex;
 import answers.index.Match;
 import answers.index.Score;
+import answers.shard.SearchResult;
+import workshop.analysis.pipeline.StandardPipelineWorkshop;
+import workshop.index.InvertedIndexWorkshop;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
@@ -18,18 +21,17 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Shard {
+public class ShardWorkshop {
 
-    private final InvertedIndex invertedIndex = new InvertedIndex();
+    private final InvertedIndexWorkshop invertedIndex = new InvertedIndexWorkshop();
 
     private final DocumentStore documents = new DocumentStore();
 
-    private final AnalyzingPipeline pipeline = new StandardPipeline();
+    private final StandardPipelineWorkshop pipeline = new StandardPipelineWorkshop();
 
     public void index(Document document) {
-        documents.save(document);
-        pipeline.analyze(document.getContent())
-                .forEach(token -> invertedIndex.put(token, document.getId()));
+        // save document in documents
+        // analyze the content and put in inverted index, hint: pipeline.analyze
     }
 
     public Document get(DocumentId documentId) {
@@ -47,21 +49,19 @@ public class Shard {
     }
 
     private Stream<Match> findAllMatches(String query) {
-        return pipeline.analyze(query)
-                .flatMap(invertedIndex::get);
+        // analyze query and find matches in inverted index, hint: pipeline.analyze, invertedIndex::get
+        return null;
     }
 
     private Map<DocumentId, Score> calculateScoresForEachDocument(Supplier<Stream<Match>> matches) {
-        return matches.get().collect(Collectors.groupingBy(Match::getDocumentId,
-                Collectors.collectingAndThen(Collectors.toList(),
-                        perDocumentMatches -> Match.reduce(perDocumentMatches, scoringStrategy()))));
+        // group matches by document id then reduce matches in each group by scoring strategy
+        // hint: groupingBy, collectingAndThen, Match.reduce
+        return null;
     }
 
     private Function<Match, BigDecimal> scoringStrategy() {
-        return match -> {
-            var generalFrequency = invertedIndex.generalFrequency(match.getToken());
-            return match.getFrequency().divide(generalFrequency);
-        };
+        // TF-IDF, hint: invertedIndex.generalFrequency, Frequency.divide
+        return null;
     }
 }
 

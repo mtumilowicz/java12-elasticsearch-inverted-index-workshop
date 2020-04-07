@@ -12,13 +12,13 @@ import java.util.Map;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @ToString
-class SearchResult implements Comparable<SearchResult> {
+public class SearchResult implements Comparable<SearchResult> {
 
     private final DocumentId documentId;
 
     private final Score score;
 
-    static SearchResult of(Map.Entry<DocumentId, Score> entry) {
+    public static SearchResult of(Map.Entry<DocumentId, Score> entry) {
         return new SearchResult(entry.getKey(), entry.getValue());
     }
 
