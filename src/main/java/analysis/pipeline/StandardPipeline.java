@@ -6,7 +6,10 @@ import analysis.filter.token.LowercaseTokenFilter;
 import analysis.filter.token.StopWordTokenFilter;
 import analysis.filter.token.TokenFilter;
 import analysis.tokenizer.SpaceTokenizer;
+import analysis.tokenizer.Token;
 import analysis.tokenizer.Tokenizer;
+
+import java.util.stream.Stream;
 
 public class StandardPipeline implements AnalyzingPipeline {
 
@@ -16,18 +19,7 @@ public class StandardPipeline implements AnalyzingPipeline {
 
     private final TokenFilter tokenFilter = new LowercaseTokenFilter().andThen(new StopWordTokenFilter());
 
-    @Override
-    public CharacterFilter characterFilter() {
-        return characterFilter;
-    }
-
-    @Override
-    public Tokenizer tokenizer() {
-        return tokenizer;
-    }
-
-    @Override
-    public TokenFilter tokenFilter() {
-        return tokenFilter;
+    public Stream<Token> analyze(String string) {
+        return characterFilter.andThen(tokenizer).andThen(tokenFilter).apply(string);
     }
 }
