@@ -36,15 +36,17 @@ public class Shard {
     }
 
     Set<SearchResult> find(String string) {
-        Supplier<Stream<Match>> matches = () -> pipeline.analyze(string)
-                .flatMap(token -> invertedIndex.get(token));
-
-        Map<DocumentId, Score> scores = calculateScoresForEachDocument(matches);
+        Map<DocumentId, Score> scores = calculateScoresForEachDocument(() -> findAllMatches(string));
 
         return scores.entrySet()
                 .stream()
                 .map(SearchResult::of)
                 .collect(Collectors.toSet());
+    }
+
+    private Stream<Match> findAllMatches(String string) {
+        return pipeline.analyze(string)
+                .flatMap(token -> invertedIndex.get(token));
     }
 
     private Map<DocumentId, Score> calculateScoresForEachDocument(Supplier<Stream<Match>> matches) {
