@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.function.Function;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class Score {
+public class Score implements Comparable<Score> {
 
     private final BigDecimal score;
 
@@ -19,5 +19,10 @@ public class Score {
 
     public Score add(Score other) {
         return Score.of(score.add(other.score));
+    }
+
+    @Override
+    public int compareTo(Score o) {
+        return score.compareTo(o.score);
     }
 }

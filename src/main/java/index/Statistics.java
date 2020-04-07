@@ -14,7 +14,7 @@ class Statistics {
 
     void put(Token token, DocumentId documentId) {
         stats.computeIfAbsent(token, ignore -> new HashMap<>())
-                .compute(documentId, (docId, freq) -> Objects.isNull(freq) ? Frequency.ZERO : freq.increment());
+                .compute(documentId, (docId, freq) -> Objects.isNull(freq) ? Frequency.ONE : freq.increment());
     }
 
     Map<DocumentId, Frequency> frequenciesOf(Token token) {
