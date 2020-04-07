@@ -8,6 +8,16 @@
     * https://www.elastic.co/guide/en/elasticsearch/reference/7.6/index.html
     * https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-primary-shard
 
+## preface
+* goals of this workshop
+    * understand foundations of elasticsearch
+        * index and inverted index
+        * term analysis
+    * understand how queries are analyzed (character filters, tokenizers, token filters)
+    * introduction to internals: Lucene's segments, scoring, shards and nodes
+
+* workshop are in `workshop` package, answers: `answers`
+
 ## elasticsearch
 ### document
 ```
