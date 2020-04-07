@@ -20,7 +20,7 @@ public class Frequency {
         return new Frequency(i);
     }
 
-    Frequency increment() {
+    public Frequency increment() {
         return new Frequency(frequency + 1);
     }
 
