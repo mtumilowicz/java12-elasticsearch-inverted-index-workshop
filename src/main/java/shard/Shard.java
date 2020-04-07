@@ -9,7 +9,6 @@ import index.InvertedIndex;
 import index.Match;
 import index.Score;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -33,18 +32,12 @@ public class Shard {
         Map<DocumentId, Score> scores = pipeline.analyze(string)
                 .flatMap(token -> invertedIndex.get(token))
                 .collect(Collectors.groupingBy(Match::getDocumentId,
-                        Collectors.collectingAndThen(Collectors.toList(), this::evaluateScore)));
+                        Collectors.collectingAndThen(Collectors.toList(), matches -> Match.score(matches, scoringStrategy()))));
 
         return scores.entrySet()
                 .stream()
                 .map(SearchResult::of)
                 .collect(Collectors.toSet());
-    }
-
-    private Score evaluateScore(List<Match> stats) {
-        return stats.stream()
-                .map(scoringStrategy())
-                .reduce(Score.ZERO, Score::add);
     }
 
     private Function<Match, Score> scoringStrategy() {
