@@ -12,9 +12,9 @@ public class Frequency {
 
     private final long frequency;
 
-    public static Frequency ZERO = new Frequency(0);
+    public static final Frequency ZERO = new Frequency(0);
 
-    public static Frequency ONE = new Frequency(1);
+    public static final Frequency ONE = new Frequency(1);
 
     public static Frequency of(int i) {
         return new Frequency(i);

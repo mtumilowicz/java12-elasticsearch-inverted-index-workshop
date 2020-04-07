@@ -18,7 +18,7 @@ public class Score implements Comparable<Score> {
         return new Score(score);
     }
 
-    public static Score ZERO = Score.of(BigDecimal.ZERO);
+    public static final Score ZERO = Score.of(BigDecimal.ZERO);
 
     public Score add(Score other) {
         return Score.of(score.add(other.score));

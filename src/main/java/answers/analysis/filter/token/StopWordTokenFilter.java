@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 public class StopWordTokenFilter implements TokenFilter {
 
-    private static Set<String> stopWords = Set.of(
+    private static final Set<String> stopWords = Set.of(
             "a",
             "and",
             "as",
