@@ -1,7 +1,7 @@
 package index;
 
-import document.DocumentId;
 import analysis.tokenizer.Token;
+import document.DocumentId;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -15,10 +15,6 @@ public class InvertedIndex {
     public void put(Token token, DocumentId documentId) {
         invertedIndex.computeIfAbsent(token, ignore -> new HashSet<>()).add(documentId);
         statistics.put(token, documentId);
-    }
-
-    public Set<DocumentId> getDocumentsContaining(Token token) {
-        return invertedIndex.getOrDefault(token, Collections.emptySet());
     }
 
     public Frequency generalFrequency(Token token) {
@@ -35,5 +31,8 @@ public class InvertedIndex {
                         .build());
     }
 
+    private Set<DocumentId> getDocumentsContaining(Token token) {
+        return invertedIndex.getOrDefault(token, Collections.emptySet());
+    }
 }
 
