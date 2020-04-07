@@ -20,7 +20,7 @@ public class Match {
 
     Frequency frequency;
 
-    public BigDecimal evaluate(Function<Frequency, BigDecimal> calc) {
-        return calc.apply(frequency);
+    public Score evaluate(Function<Frequency, BigDecimal> calc) {
+        return Score.of(calc.apply(frequency));
     }
 }

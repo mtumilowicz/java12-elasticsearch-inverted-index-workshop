@@ -9,9 +9,7 @@ public class Frequency {
 
     private final long frequency;
 
-    static Frequency zero() {
-        return new Frequency(0);
-    }
+    public static Frequency ZERO = new Frequency(0);
 
     Frequency increment() {
         return new Frequency(frequency + 1);

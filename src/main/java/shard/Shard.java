@@ -1,14 +1,14 @@
 package shard;
 
+import analysis.pipeline.AnalyzingPipeline;
+import analysis.pipeline.StandardPipeline;
 import document.Document;
 import document.DocumentId;
 import document.DocumentStore;
 import index.InvertedIndex;
 import index.Match;
-import analysis.pipeline.AnalyzingPipeline;
-import analysis.pipeline.StandardPipeline;
+import index.Score;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,13 +42,12 @@ public class Shard {
     }
 
     private Score evaluateScore(List<Match> stats) {
-        var value = stats.stream()
+        return stats.stream()
                 .map(scoringStrategy())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        return Score.of(value);
+                .reduce(Score.ZERO, Score::add);
     }
 
-    private Function<Match, BigDecimal> scoringStrategy() {
+    private Function<Match, Score> scoringStrategy() {
         return match -> {
             var generalFrequency = invertedIndex.generalFrequency(match.getToken());
             return match.evaluate(frequency -> frequency.divide(generalFrequency));

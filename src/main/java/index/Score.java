@@ -1,4 +1,4 @@
-package shard;
+package index;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -12,5 +12,11 @@ public class Score {
 
     public static Score of(BigDecimal score) {
         return new Score(score);
+    }
+
+    public static Score ZERO = Score.of(BigDecimal.ZERO);
+
+    public Score add(Score other) {
+        return Score.of(score.add(other.score));
     }
 }

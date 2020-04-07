@@ -1,6 +1,7 @@
 package shard;
 
 import document.DocumentId;
+import index.Score;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
