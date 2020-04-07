@@ -36,8 +36,10 @@ class ShardTest extends Specification {
         when:
         def results = shard.find('content')
 
-        then:
+        then: 'single result'
         results.size() == 1
+
+        and: 'verify that results contain documentId and correct score'
         def result = results[0]
         result.documentId == document.id
         result.score == Score.of(BigDecimal.valueOf(1))
@@ -74,14 +76,15 @@ class ShardTest extends Specification {
         when:
         def results = shard.find('event declined')
 
-        then:
-        println results
+        then: 'three matching documents'
         results.size() == 3
+
+        and: 'results are sorted by score'
         def top1 = results[0]
         top1.documentId == document2.id
         top1.score == Score.of(BigDecimal.valueOf(1.3334))
 
-        and:
+        and: 'rest have equal scores'
         results[1].documentId == document.id
         results[2].documentId == document3.id
         results[1].score == results[2].score
