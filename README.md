@@ -72,7 +72,7 @@
 * process of refreshing and process of committing in-memory segments to disk are independent
     * data is indexed first in memory (search disk + in-memory segments as well)
     * flush: the process of committing in-memory segments to disk (Lucene index)
-        * transaction log: in cae of a node goes down or a shard is relocated - track of not flushed operations 
+        * transaction log: in case of a node goes down or a shard is relocated - track of not flushed operations 
             * flush also clears the transaction log
 * a flush is triggered by
   * the memory buffer is full
