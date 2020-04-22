@@ -89,7 +89,7 @@
         * example
             * stripping HTML out of text
             * '4' -> 'for', '2' -> 'too', 'U' -> 'you'
-    * breaking text into tokens — breaks the text into one or more tokens
+    * breaking text into one or more tokens tokens
         * token - smaller, meaningful string
         * lucene itself doesn’t act on large strings but on tokens
         * example: splitting text into tokens based on whitespaces
@@ -101,8 +101,7 @@
     * token indexing — stores those tokens into the index
         * sent to Lucene to be indexed for the document
         * make up the inverted index
-* analysis chain during full-text field indexing is also used at search time
-    * the query text undergoes the same analysis before the terms are looked up in the index
+* the query text undergoes the same analysis before the terms are looked up in the index
 ### node
 * node is an instance of Elasticsearch
 * multiple nodes can join the same cluster
@@ -112,7 +111,7 @@
     will still serve you all the data
 * for performance reasons, the nodes within a cluster need to be on the same network
     * balancing shards in a cluster across nodes in different data centers simply takes too long
-    * Cross-cluster replication (CCR)
+    * cross-cluster replication (CCR)
 ### shard
 * is a Lucene index: a directory of files containing an inverted index
 * index is just a logical grouping of physical shards
