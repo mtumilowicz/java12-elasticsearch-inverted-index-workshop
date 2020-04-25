@@ -75,9 +75,9 @@
         * transaction log: in case of a node goes down or a shard is relocated - track of not flushed operations 
             * flush also clears the transaction log
 * a flush is triggered by
-  * the memory buffer is full
-  * time since last flush
-  * the transaction log hit a threshold
+    * the memory buffer is full
+    * time since last flush
+    * the transaction log hit a threshold
 ### inverted indexing
 * Lucene data structure where it keeps a list of where each word belong
 * example: index in the book with words and what pages they appear
@@ -89,7 +89,7 @@
         * example
             * stripping HTML out of text
             * '4' -> 'for', '2' -> 'too', 'U' -> 'you'
-    * breaking text into one or more tokens tokens
+    * breaking text into one or more tokens
         * token - smaller, meaningful string
         * lucene itself doesn’t act on large strings but on tokens
         * example: splitting text into tokens based on whitespaces
@@ -126,6 +126,10 @@
     * replica shard is a copy of a primary shard
     * number of primary shards in an index is fixed at the time that an index is created
         * number of replica shards can be changed at any time
+        * you could segment the data by date, creating an index for each year: 2014, 2015, 2016, and so on
+            * possibility to adjust the number of primary shards based on load and performance of the 
+            previous indexes
+            * commonly used when indexing date-based information (like log files)
 * documents are distributed evenly between shards
     * the shard is determined by hashing document id
     * each shard has an equal hash range
