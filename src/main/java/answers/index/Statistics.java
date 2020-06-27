@@ -1,12 +1,11 @@
 package answers.index;
 
-import answers.document.DocumentId;
 import answers.analysis.tokenizer.Token;
+import answers.document.DocumentId;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 class Statistics {
 
@@ -14,7 +13,7 @@ class Statistics {
 
     void put(Token token, DocumentId documentId) {
         stats.computeIfAbsent(token, ignore -> new HashMap<>())
-                .compute(documentId, (docId, freq) -> Objects.isNull(freq) ? Frequency.ONE : freq.increment());
+                .merge(documentId, Frequency.ONE, (prev, one) -> prev.increment());
     }
 
     Map<DocumentId, Frequency> frequenciesOf(Token token) {
