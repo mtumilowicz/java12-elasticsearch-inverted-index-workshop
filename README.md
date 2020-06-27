@@ -10,6 +10,7 @@
     * https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-mapping-charfilter.html
     * https://www.elastic.co/guide/en/elasticsearch/reference/7.6/index.html
     * https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-primary-shard
+    * https://www.nurkiewicz.com/2019/03/mapmerge-one-method-to-rule-them-all.html
 
 ## preface
 * goals of this workshop
