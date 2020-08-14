@@ -99,7 +99,7 @@
         * example
             * lowercase token filter, 'Good' -> 'good'
             * removing the stopwords ('and', 'the', 'my')
-               * note that sometimes (very rarely) stopwords are important: "to be, or not to be"
+               * note that sometimes (very rarely) stopwords are important and can be helpful: "to be, or not to be"
             * adding synonyms
     * token indexing — stores those tokens into the index
         * sent to Lucene to be indexed for the document
