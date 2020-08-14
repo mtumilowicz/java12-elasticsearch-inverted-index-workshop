@@ -11,6 +11,7 @@
     * https://www.elastic.co/guide/en/elasticsearch/reference/7.6/index.html
     * https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-primary-shard
     * https://www.nurkiewicz.com/2019/03/mapmerge-one-method-to-rule-them-all.html
+    * [2018 - Philipp Krenn - Full-Text Search Internals](https://www.youtube.com/watch?v=TiLYEqfdVhs)
 
 ## preface
 * goals of this workshop
@@ -98,6 +99,7 @@
         * example
             * lowercase token filter, 'Good' -> 'good'
             * removing the stopwords ('and', 'the', 'my')
+               * note that sometimes (very rarely) stopwords are important: "to be, or not to be"
             * adding synonyms
     * token indexing — stores those tokens into the index
         * sent to Lucene to be indexed for the document
