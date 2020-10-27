@@ -13,6 +13,7 @@
     * https://www.nurkiewicz.com/2019/03/mapmerge-one-method-to-rule-them-all.html
     * https://www.quora.com/What-is-inverted-index-It-is-a-well-known-fact-that-you-need-to-build-indexes-to-implement-efficient-searches-What-is-the-difference-between-index-and-inverted-index-and-how-does-one-build-inverted-index
     * https://www.book-editing.com/why-book-indexing/
+    * [2018 - Philipp Krenn - Full-Text Search Internals](https://www.youtube.com/watch?v=TiLYEqfdVhs)
 
 ## preface
 * goals of this workshop
@@ -103,6 +104,7 @@
         * example
             * lowercase token filter, 'Good' -> 'good'
             * removing the stopwords ('and', 'the', 'my')
+               * note that sometimes (very rarely) stopwords are important and can be helpful: "to be, or not to be"
             * adding synonyms
     * token indexing — stores those tokens into the index
         * sent to Lucene to be indexed for the document
