@@ -11,6 +11,8 @@
     * https://www.elastic.co/guide/en/elasticsearch/reference/7.6/index.html
     * https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-primary-shard
     * https://www.nurkiewicz.com/2019/03/mapmerge-one-method-to-rule-them-all.html
+    * https://www.quora.com/What-is-inverted-index-It-is-a-well-known-fact-that-you-need-to-build-indexes-to-implement-efficient-searches-What-is-the-difference-between-index-and-inverted-index-and-how-does-one-build-inverted-index
+    * https://www.book-editing.com/why-book-indexing/
 
 ## preface
 * goals of this workshop
@@ -81,7 +83,10 @@
     * the transaction log hit a threshold
 ### inverted indexing
 * Lucene data structure where it keeps a list of where each word belong
+    ![alt text](img/inverted-index.jpg)
 * example: index in the book with words and what pages they appear
+    ![alt text](img/book-index.jpg)
+
 ### analysis
 ![alt text](img/analysis_overview.png)
 ![alt text](img/analysis_example.png)
