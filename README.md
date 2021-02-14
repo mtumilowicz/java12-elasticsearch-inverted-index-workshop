@@ -14,6 +14,9 @@
     * https://www.quora.com/What-is-inverted-index-It-is-a-well-known-fact-that-you-need-to-build-indexes-to-implement-efficient-searches-What-is-the-difference-between-index-and-inverted-index-and-how-does-one-build-inverted-index
     * https://www.book-editing.com/why-book-indexing/
     * [2018 - Philipp Krenn - Full-Text Search Internals](https://www.youtube.com/watch?v=TiLYEqfdVhs)
+    * https://codingexplained.com/coding/elasticsearch/understanding-sharding-in-elasticsearch
+    * https://codingexplained.com/coding/elasticsearch/introduction-elasticsearch-architecture
+    * https://codingexplained.com/coding/elasticsearch/understanding-replication-in-elasticsearch
 
 ## preface
 * goals of this workshop
@@ -120,30 +123,63 @@
 * for performance reasons, the nodes within a cluster need to be on the same network
     * balancing shards in a cluster across nodes in different data centers simply takes too long
     * cross-cluster replication (CCR)
+* given node then receives the request is responsible for coordinating the rest of the work
+    * node within the cluster knows about every node in the cluster and is able to forward requests
+    to a given node by using a transport layer
+        * HTTP layer is exclusively used for communicating with external clients
+* master node is the node that is responsible for coordinating changes to the cluster, such as
+adding or removing nodes, creating or removing indices, etc
 ### shard
 * is a Lucene index: a directory of files containing an inverted index
 * index is just a logical grouping of physical shards
     * each shard is actually a self-contained index
+    * example
+        * suppose that an index = 1 terabyte of data
+        * there are two nodes: each with 512 gigabytes available for storing data
+            * the entire index will not fit on either of the nodes
+        * we need some way of splitting the index
+            * sharding comes to the rescue
 * stores documents plus additional information (term dictionary, term frequencies)
     * term dictionary: maps each term to identifiers of documents containing that term
     * term frequencies: number of appearances of a term in a document
         * important for calculating the relevancy score of results
 * two types of shards: primaries and replicas
+    * all operations that affect the index — such as adding, updating, or removing documents — are sent to the
+    primary shard
+        * when the operation completes, the operation will be forwarded to each of the replica shards
+        * when the operation has completed successfully on every replica and responded to the primary shard,
+        the primary shard will respond to the client that the operation has completed successfully
     * each document is stored in a single primary shard
         * it is indexed first on the primary shard, then on all replicas of the primary shard
     * replica shard is a copy of a primary shard
-    * number of primary shards in an index is fixed at the time that an index is created
-        * number of replica shards can be changed at any time
-        * you could segment the data by date, creating an index for each year: 2014, 2015, 2016, and so on
-            * possibility to adjust the number of primary shards based on load and performance of the 
-            previous indexes
-            * commonly used when indexing date-based information (like log files)
+        * are never allocated to the same nodes as the primary shards
+        * serves two purposes
+            * provide high availability in case nodes or shards fail
+            * increase performance for search queries (searches can be executed on all replicas in parallel)
 * documents are distributed evenly between shards
     * the shard is determined by hashing document id
     * each shard has an equal hash range
     * the current node forwards the document to the node holding that shard
         * indexing operation is replayed by all the replicas of that shard
-* as you add more nodes to the same cluster, existing shards get balanced between all nodes
+* can be hosted on any node within the cluster
+    * not necessarily be distributed across multiple physical or virtual machines
+        * example
+            * 1 terabyte index into four shards (256 gb each)
+            * shards could be distributed across the two nodes (2 per node)
+    * as you add more nodes to the same cluster, existing shards get balanced between all nodes
+* two main reasons why sharding is important
+    * allows you to split and thereby scale volumes of data
+    * operations can be distributed across multiple nodes and thereby parallelized
+        * multiple machines can potentially work on the same query
+* routing: determining which primary shard a given document should be stored in or has been stored in
+    * standard: `shard = hash(routing) % total_primary_shards`
+        * number of primary shards in an index is fixed at the time that an index is created
+            * you could segment the data by date, creating an index for each year: 2014, 2015, 2016, and so on
+                * possibility to adjust the number of primary shards based on load and performance of the
+                previous indexes
+                * commonly used when indexing date-based information (like log files)
+        * number of replica shards can be changed at any time
+    * is customizable, for example: shard based on the customer’s country
 ### segment
 * is a chunk of the Lucene index
 * segments are immutable
