@@ -17,6 +17,9 @@
     * https://codingexplained.com/coding/elasticsearch/understanding-sharding-in-elasticsearch
     * https://codingexplained.com/coding/elasticsearch/introduction-elasticsearch-architecture
     * https://codingexplained.com/coding/elasticsearch/understanding-replication-in-elasticsearch
+    * https://chatgpt.com/
+    * https://www.elastic.co/docs/manage-data/data-store/mapping/removal-of-mapping-types
+    * https://www.elastic.co/docs/manage-data/data-store/mapping
 
 ## preface
 * goals of this workshop
@@ -49,19 +52,17 @@
     * flexible structure: don’t depend on a predefined schema
 * JSON representation
     * can contain arrays of values
+ 
 ### types
-* are logical containers for documents
-    * similar to how tables are containers for rows
-* documents with different structures (schemas) should be in different types
-    * example: employees and tasks
-* mapping: definition of fields in each type
-    * example: name -> string, location -> geo_point
-        * different handling: searching for a name that starts with M, searching for a location that is within 30 km
-    * contains all the fields of all the documents indexed in that type
-    * new fields in an indexed document => Elasticsearch automatically adds them to your mapping
-        * guessing it types
-* mapping divide documents logically
-    * physically, documents from the same index are written to disk regardless of the mapping type they belong to
+* elasticsearch 8.0.0 no longer supports mapping types
+    * only one type per index is allowed, and it's always `_doc`
+    * mapping is now defined at the index level, not per type
+
+### mapping
+* is the schema definition for the documents in an index
+* `GET /your-index-name/_mapping`
+* example
+
 ### indices
 * can be thought of as an optimized collection of documents
     * Elasticsearch indexes all data in every field and each indexed field has a dedicated, optimized data 
