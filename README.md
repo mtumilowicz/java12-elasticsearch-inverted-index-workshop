@@ -20,6 +20,7 @@
     * https://chatgpt.com/
     * https://www.elastic.co/docs/manage-data/data-store/mapping/removal-of-mapping-types
     * https://www.elastic.co/docs/manage-data/data-store/mapping
+    * https://www.elastic.co/blog/what-is-an-elasticsearch-index
 
 ## preface
 * goals of this workshop
@@ -60,34 +61,184 @@
 
 ### mapping
 * is the schema definition for the documents in an index
-* `GET /your-index-name/_mapping`
+    * document = collection of fields + data types
+    * includes metadata fields
+        * example
+            * `_index` - index to which the document belongs
+            * `_id` - document’s ID
+            * `_source` - original JSON representing the body of the document
+            * others
 * example
+    ```
+    GET /your-index-name/_mapping
+  
+    {
+      "people": {
+        "mappings": {
+        "_source": { // by default ommitted
+          "enabled": true
+        },
+        "_meta": { // custom metadata (ex.: for documentation or tooling)
+          "version": "1.0",
+          "description": "People index for sanction screening"
+        },
+          "properties": {
+            "name": { "type": "text" },
+            "birthdate": { "type": "date" },
+            "country": { "type": "keyword" },
+            "bio_vector": {
+              "type": "dense_vector",
+              "dims": 384
+            }
+          }
+        }
+      }
+    }
+    ```
+* two types
+    * dynamic mapping
+        * automatically detects the data types of fields
+            * might yield suboptimal results for specific use cases
+            * default mappings: defined using dynamic templates
+                * example: map `app_*.code` as keywords and `app_*.message` as text
+                    ```
+                    PUT /logs
+                    {
+                      "mappings": {
+                        "dynamic_templates": [
+                          {
+                            "map_app_codes_as_keyword": {
+                              "path_match": "app_*.code",
+                              "mapping": {
+                                "type": "keyword"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                    ```
+                    will produce types
+                    ```
+                    "app_error.code": { "type": "keyword" }
+                    "app_warning.code": { "type": "keyword" }
+                    "app_error.message": { "type": "text" }
+                    ```
+        * add new fields automatically
+            * use case: don’t know all the field names in advance
+        * some data types that cannot be automatically detected
+            * example: `geo_point`, `geo_shape`
+    * explicit mapping
+        * used to have greater control over which fields are created
+        * recommended for production use cases
+* can’t change mappings for fields that are already mapped
+    * requires reindexing
+        * sometimes adding multi-fields (index same field in different ways) is an option, but old documents will not have them
+            ```
+            "city": {
+              "type": "text",
+              "fields": {
+                "raw": {
+                  "type":  "keyword"
+                }
+              }
+            }
+            ```
+* mapping explosion
+    * too many fields in an index an cause out of memory errors
+    * can be caused by lack of control over dynamic mapping
+        * example: every new document inserted introduces new fields
+    * use the mapping limit settings to limit the number of field mappings
 
 ### indices
+* logical namespace that holds a collection of documents
+    * can be considered as a table
+* logical abstraction over one or more Lucene indices (called shards)
 * can be thought of as an optimized collection of documents
-    * Elasticsearch indexes all data in every field and each indexed field has a dedicated, optimized data 
-    structure
-        * for example, text fields -> inverted indices, numeric and geo fields -> BKD trees
-    * useful to index the same field in different ways for different purposes
-* like a relational database: each index is stored on the disk in the same set of files
-* you can search across types and search across indices
-* near-real time 
+    * each indexed field has optimized data structure
+        * example
+            * text fields -> inverted indices
+            * numeric and geo fields -> BKD trees
+* near-real time search
     * searches not run on the latest indexed data
-    * a point-in-time view of the index - multiple searches hit the same files and reuse the same caches
-        * newly indexed documents are not visible until refresh
-* refresh - refreshes point-in-time view
-    * default: every 1s
-* process of refreshing and process of committing in-memory segments to disk are independent
-    * data is indexed first in memory (search goes through disk and in-memory segments as well)
-    * flush: the process of committing in-memory segments to disk (Lucene index)
-        * transaction log: in case of a node goes down or a shard is relocated - track of not flushed operations 
-            * flush also clears the transaction log
-* a flush is triggered by
-    * the memory buffer is full
-    * time since last flush
-    * the transaction log hit a threshold
+        * indexing a doc ≠ instant search visibility
+        * document can be retrieved by ID immediately
+            * but a search query won’t return it until a refresh happens
+    * point-in-time view of the index
+        * multiple searches hit the same files and reuse the same caches
+* processes
+    * indexing = storing
+        * document is put in two places
+            * in-memory buffer (Lucene memory buffer)
+            * transaction log (called translog) on disk
+                * crash recovery log
+                * translog is not searchable
+        * when
+            * document sent to Elasticsearch
+        * after indexing
+            * document is durable (even if node crashes)
+            * not yet searchable
+    * refresh
+        * makes newly indexed documents searchable
+        * writes in-memory buffer into a new Lucene segment
+            * usually reside in the OS page cache (memory)
+                * aren’t guaranteed to be persisted until an fsync or flush
+                * in particular: files may never hit the actual disk
+                    * Lucene will ignore them if there's no updated `segments_N`
+                        * => update is done during commit
+        * opens a new searcher
+            * sees all committed segments
+            * sees any new segments created by a refresh
+            * does not see uncommitted in-memory data
+                * example: buffer
+            * every search request is handled by
+                * grabbing the current active searcher
+                * executing the query against that consistent view
+                    * writes don’t interfere with ongoing searches
+        * when
+            * automatically every 1 second (default)
+            * manually: `POST /my-index/_refresh`
+        * after refresh
+            * documents are searchable
+    * commit
+        * it is not about search
+            * does not affect search => searchers see segments based on refresh, not commit
+        * uses fsync
+            * the only way to guarantee that the operating system has actually written data to disk
+        * pauses index writers briefly
+            * to ensure that commit reflects a consistent index state
+        * clears the translog (since changes are now safely in Lucene index)
+        * each commit creates a new `segments_N` file with an incremented generation number `(N)`
+            * represents current state of the index
+                * lists all the active segments
+                * older `segments_N` files are effectively obsolete after a new one is committed
+            * binary file
+                * textual example
+                    ```
+                    Segments:
+                    ----------
+                    Segment: _0
+                    - Uses compound file: true
+                    - Doc count: 1,000
+                    - Deleted docs: 0
+                    - Files:
+                        _0.cfs
+                        _0.cfe
+                        _0.si
+                    - Codec: Lucene90
+                    - Segment created with Lucene 9.9.0
+                    ```
+            * Lucene reads this file on startup
+                * tells which `.cfs` segment files to load and use
+                * reads `segments.gen` to find the latest `segments_N` file
+        * when
+            * the memory buffer is full
+            * time since last flush
+            * the transaction log hit a threshold
+            * in particular: refreshing and committing are independent
+    
 ### inverted indexing
-* Lucene data structure where it keeps a list of where each word belong
+* Lucene data structure where it keeps a list of where each word belongs
     ![alt text](img/inverted-index.jpg)
 * example: index in the book with words and what pages they appear
     ![alt text](img/book-index.jpg)
@@ -114,24 +265,40 @@
         * sent to Lucene to be indexed for the document
         * make up the inverted index
 * the query text undergoes the same analysis before the terms are looked up in the index
+
 ### node
 * node is an instance of Elasticsearch
 * multiple nodes can join the same cluster
 * with a cluster of multiple nodes, the same data can be spread across multiple servers
-    * helps performance because Elasticsearch has more resources to work with
+    * helps performance: because Elasticsearch has more resources to work with
     * helps reliability: if you have at least one replica per shard, any node can disappear and Elasticsearch 
     will still serve you all the data
-* for performance reasons, the nodes within a cluster need to be on the same network
-    * balancing shards in a cluster across nodes in different data centers simply takes too long
-    * cross-cluster replication (CCR)
-* given node then receives the request is responsible for coordinating the rest of the work
-    * node within the cluster knows about every node in the cluster and is able to forward requests
-    to a given node by using a transport layer
-        * HTTP layer is exclusively used for communicating with external clients
-* master node is the node that is responsible for coordinating changes to the cluster, such as
-adding or removing nodes, creating or removing indices, etc
+    * for performance reasons, the nodes within a cluster need to be on the same network
+        * balancing shards in a cluster across nodes in different data centers simply takes too long
+        * cross-cluster replication (CCR)
+            * allows you to replicate data from one cluster (leader cluster) to another (follower cluster)
+            * example: across data centers, regions, or cloud availability zones
+* roles
+    * master
+        * election: Raft-inspired
+        * maintains the cluster state (node joins/leaves, index creation, shard allocation)
+        * assign shards to nodes
+            * example: when new index is created
+                * based on node capabilities
+    * data
+        * stores actual index data (primary and replica shards)
+    * coordinating
+        * maintains a local copy of the cluster state
+            * only the master node updates the cluster state, but all nodes subscribe to it
+        * routes client requests
+            * hash of id % number_of_primary_shards => picks the target shard
+        * returns final result
+            * example: merges responses to aggregate results
+        * every node in Elasticsearch can act as a coordinating node
+
 ### shard
-* is a Lucene index: a directory of files containing an inverted index
+* is a Lucene shard: a directory of files containing an inverted index
+* cannot be split or merged easily
 * index is just a logical grouping of physical shards
     * each shard is actually a self-contained index
     * example
@@ -140,6 +307,14 @@ adding or removing nodes, creating or removing indices, etc
             * the entire index will not fit on either of the nodes
         * we need some way of splitting the index
             * sharding comes to the rescue
+* contains
+    * segment files
+    * metadata files (how to read, decode, and interpret the raw data files in a segment)
+        * example: `.fnm` (field names and types)
+    * commit files (which segments to load after a crash or restart)
+        * segments_N (snapshot of all current segments)
+        * segments.gen (tracks the latest segments_N file)
+        * write.lock (prevent concurrent writers)
 * stores documents plus additional information (term dictionary, term frequencies)
     * term dictionary: maps each term to identifiers of documents containing that term
     * term frequencies: number of appearances of a term in a document
@@ -181,27 +356,68 @@ adding or removing nodes, creating or removing indices, etc
                 * commonly used when indexing date-based information (like log files)
         * number of replica shards can be changed at any time
     * is customizable, for example: shard based on the customer’s country
+    
 ### segment
-* is a chunk of the Lucene index
-* segments are immutable
+* contains
+    * inverted index
+        * term dictionary
+            * maps term to offset in a posting list
+            * contains document frequency
+            * example
+                * term: "shoes" → df = 2, offset = 842
+                    * Lucene know that from offset X should read exactly 2 document entries
+        * postings lists
+            * stores all the information Lucene needs to retrieve and rank documents
+                * example: document where the term appears, term frequency
+    * stored fields (original document fields)
+    * doc values (columnar storage for sorting, aggregations, faceting)
+        * example
+            ```
+            DocID   price (doc value)
+            --------------------------
+            0       59.99
+            1       19.99
+            2       129.99
+            ```
+    * norms (field-level stats for scoring)
+        * example: length of field
+            * longer fields tend to be less precise
+* involves 10+ small files per segment
+    * in particular: 100 segments => 1000+ files
+        * problem: file handle exhaustion
+        * solution: .cfs (compound file format)
+            * Lucene can read them as if they were separate files (using random-access lookups inside .cfs)
+    * not compressed
+        * just a flat concatenation of multiple Lucene data files
+* is immutable
     * new ones are created as you index new documents
     * deleting only marks documents as deleted
+        * Lucene supports deletes via live docs bitmap, not by physically removing the data immediately
+        * cleaned up during segment merges
     * updating documents implies re-indexing
         * updating a document can’t change the actual document; it can only index a new one
     * are easily cached, making searches fast
-* when query on a shard
-    * Lucene queries all its segments, merge the results, and send them back
-        * the more segments you have to go though, the slower the search
-* merging
+* Lucene queries all its segments, merge the results, and send them back
     * normal indexing operations create many such small segments
-    * Lucene merges them from time to time
-    * implies reading contents, excluding the deleted documents, and creating new and bigger segments with combined 
-    content 
-    * process requires resources: CPU and disk I/O
-    * merges run asynchronously
-    * tiered - default merge policy
-        * segments divided into tiers
-        * if threshold hit in a tier, merge is triggered in that tier
+    * the more segments you have to go though, the slower the search
+        * solution: merging
+            * creating new and bigger segments with combined content
+                * commit: writes a new segments_N listing new merged segment and not segments that were merged
+                * example: excluding the deleted documents
+            * tiered - default merge policy
+                * segments divided into tiers by size
+                    * example
+                        ```
+                        Tier 1: segments ≤ 5 MB
+                        Tier 2: segments ≤ 25 MB
+                        Tier 3: segments ≤ 150 MB
+                        ...
+                        ```
+                * each tier has a threshold number of segments
+                    * if threshold hit in a tier => merge in that tier
+                * prioritizes merging small segments first (cheap, fast)
+                    * avoids merging huge segments unless necessary
+
 ### scoring
 * TF: how often a term occurs in the text
 * IDF: the token's importance is inversely proportional to the number of occurrences across all of the documents
