@@ -99,8 +99,9 @@
     * dynamic mapping
         * automatically detects the data types of fields
             * might yield suboptimal results for specific use cases
-            * default mappings: defined using dynamic templates
-                * example: map `app_*.code` as keywords and `app_*.message` as text
+            * default mappings
+                * defined using dynamic templates
+                * example: map `app_*.code` as keywords
                     ```
                     PUT /logs
                     {
@@ -122,18 +123,28 @@
                     ```
                     "app_error.code": { "type": "keyword" }
                     "app_warning.code": { "type": "keyword" }
-                    "app_error.message": { "type": "text" }
                     ```
         * add new fields automatically
-            * use case: don’t know all the field names in advance
-        * some data types that cannot be automatically detected
-            * example: `geo_point`, `geo_shape`
+            * use case: some fields cannot be known in advance
+        * some data types cannot be automatically detected
+            * example: `geo_point`
+                * can be represented in multiple ways
+                    * string: `"41.12,-71.34"`
+                        * looks like text
+                        * what is first - latitude or longitude?
+                    * array: `[ -71.34, 41.12 ]`
+                        * looks like numeric array
+                    * object: `{ "lat": 41.12, "lon": -71.34 }`
+                        * looks like JSON
+                * so Elasticsearch requires to explicitly declare `geo_point` fields in mapping
     * explicit mapping
-        * used to have greater control over which fields are created
+        * used to have greater control over fields
         * recommended for production use cases
 * can’t change mappings for fields that are already mapped
     * requires reindexing
-        * sometimes adding multi-fields (index same field in different ways) is an option, but old documents will not have them
+    * sometimes multi-fields are solution (index same field in different ways)
+        * drawback: old documents will not have them
+        * example
             ```
             "city": {
               "type": "text",
@@ -145,15 +156,23 @@
             }
             ```
 * mapping explosion
-    * too many fields in an index an cause out of memory errors
+    * too many fields in an index => risk of out of memory errors
     * can be caused by lack of control over dynamic mapping
         * example: every new document inserted introduces new fields
-    * use the mapping limit settings to limit the number of field mappings
+    * solution: use the mapping limit settings to limit the number of field mappings
 
 ### indices
 * logical namespace that holds a collection of documents
     * can be considered as a table
 * logical abstraction over one or more Lucene indices (called shards)
+    * by default: all shards are queried
+        * solution: create logical groups of data in separate indices
+            * example
+                ```
+                customers-switzerland → 2 shards
+                customers-germany → 2 shards
+                customers-rest → 1 shard
+                ```
 * can be thought of as an optimized collection of documents
     * each indexed field has optimized data structure
         * example
@@ -161,8 +180,8 @@
             * numeric and geo fields -> BKD trees
 * near-real time search
     * searches not run on the latest indexed data
-        * indexing a doc ≠ instant search visibility
-        * document can be retrieved by ID immediately
+        * indexing ≠ search visibility
+        * however, document can be retrieved by ID immediately
             * but a search query won’t return it until a refresh happens
     * point-in-time view of the index
         * multiple searches hit the same files and reuse the same caches
@@ -182,7 +201,7 @@
         * makes newly indexed documents searchable
         * writes in-memory buffer into a new Lucene segment
             * usually reside in the OS page cache (memory)
-                * aren’t guaranteed to be persisted until an fsync or flush
+                * aren’t guaranteed to be persisted until `fsync` or `flush`
                 * in particular: files may never hit the actual disk
                     * Lucene will ignore them if there's no updated `segments_N`
                         * => update is done during commit
@@ -193,6 +212,7 @@
                 * example: buffer
             * every search request is handled by
                 * grabbing the current active searcher
+                    * each shard knows its current searcher
                 * executing the query against that consistent view
                     * writes don’t interfere with ongoing searches
         * when
@@ -203,7 +223,7 @@
     * commit
         * it is not about search
             * does not affect search => searchers see segments based on refresh, not commit
-        * uses fsync
+        * uses `fsync`
             * the only way to guarantee that the operating system has actually written data to disk
         * pauses index writers briefly
             * to ensure that commit reflects a consistent index state
@@ -262,19 +282,18 @@
                * note that sometimes (very rarely) stopwords are important and can be helpful: "to be, or not to be"
             * adding synonyms
     * token indexing — stores those tokens into the index
-        * sent to Lucene to be indexed for the document
-        * make up the inverted index
 * the query text undergoes the same analysis before the terms are looked up in the index
 
 ### node
 * node is an instance of Elasticsearch
 * multiple nodes can join the same cluster
-* with a cluster of multiple nodes, the same data can be spread across multiple servers
-    * helps performance: because Elasticsearch has more resources to work with
-    * helps reliability: if you have at least one replica per shard, any node can disappear and Elasticsearch 
-    will still serve you all the data
-    * for performance reasons, the nodes within a cluster need to be on the same network
-        * balancing shards in a cluster across nodes in different data centers simply takes too long
+* cluster
+    * same data can be spread across multiple servers (replication)
+        * helps performance: adds resources to work with
+        * helps reliability: data is replicated
+    * all nodes need to be on the same network
+        * balancing shards across data centers simply takes too long
+            * example: master issues relocation commands if it detects unbalanced shard distribution
         * cross-cluster replication (CCR)
             * allows you to replicate data from one cluster (leader cluster) to another (follower cluster)
             * example: across data centers, regions, or cloud availability zones
@@ -284,14 +303,16 @@
         * maintains the cluster state (node joins/leaves, index creation, shard allocation)
         * assign shards to nodes
             * example: when new index is created
-                * based on node capabilities
+                * based on node capabilities and existing shard distribution
     * data
         * stores actual index data (primary and replica shards)
     * coordinating
         * maintains a local copy of the cluster state
             * only the master node updates the cluster state, but all nodes subscribe to it
         * routes client requests
-            * hash of id % number_of_primary_shards => picks the target shard
+            * formula: hash of id % number_of_primary_shards => picks the target shard
+                * number of primary shards in an index is fixed at the time that an index is created
+            * in particular: Elasticsearch always maps a routing value to a single shard
         * returns final result
             * example: merges responses to aggregate results
         * every node in Elasticsearch can act as a coordinating node
@@ -312,21 +333,23 @@
     * metadata files (how to read, decode, and interpret the raw data files in a segment)
         * example: `.fnm` (field names and types)
     * commit files (which segments to load after a crash or restart)
-        * segments_N (snapshot of all current segments)
-        * segments.gen (tracks the latest segments_N file)
-        * write.lock (prevent concurrent writers)
-* stores documents plus additional information (term dictionary, term frequencies)
-    * term dictionary: maps each term to identifiers of documents containing that term
-    * term frequencies: number of appearances of a term in a document
-        * important for calculating the relevancy score of results
+        * `segments_N` (snapshot of all current segments)
+        * `segments.gen` (tracks the latest segments_N file)
+        * `write.lock` (prevent concurrent writers)
+* can be hosted on any node within the cluster
+    * not necessarily be distributed across multiple physical or virtual machines
+        * example
+            * 1 terabyte index into four shards (256 gb each)
+            * shards could be distributed across the two nodes (2 per node)
+    * as you add more nodes to the same cluster, existing shards get balanced between all nodes
 * two types of shards: primaries and replicas
-    * all operations that affect the index — such as adding, updating, or removing documents — are sent to the
-    primary shard
-        * when the operation completes, the operation will be forwarded to each of the replica shards
-        * when the operation has completed successfully on every replica and responded to the primary shard,
-        the primary shard will respond to the client that the operation has completed successfully
+    * primary shard: all operations that affect the index
+        * example: adding, updating, or removing documents
+    * flow
+        1. operation completes on primary shard => it is forwarded to each of the replica shards
+        1. operation completes on every replica => responds to the primary shard
+        1. primary shard responds to the client
     * each document is stored in a single primary shard
-        * it is indexed first on the primary shard, then on all replicas of the primary shard
     * replica shard is a copy of a primary shard
         * are never allocated to the same nodes as the primary shards
         * serves two purposes
@@ -335,27 +358,10 @@
 * documents are distributed evenly between shards
     * the shard is determined by hashing document id
     * each shard has an equal hash range
-    * the current node forwards the document to the node holding that shard
-        * indexing operation is replayed by all the replicas of that shard
-* can be hosted on any node within the cluster
-    * not necessarily be distributed across multiple physical or virtual machines
-        * example
-            * 1 terabyte index into four shards (256 gb each)
-            * shards could be distributed across the two nodes (2 per node)
-    * as you add more nodes to the same cluster, existing shards get balanced between all nodes
 * two main reasons why sharding is important
     * allows you to split and thereby scale volumes of data
     * operations can be distributed across multiple nodes and thereby parallelized
         * multiple machines can potentially work on the same query
-* routing: determining which primary shard a given document should be stored in or has been stored in
-    * standard: `shard = hash(routing) % total_primary_shards`
-        * number of primary shards in an index is fixed at the time that an index is created
-            * you could segment the data by date, creating an index for each year: 2014, 2015, 2016, and so on
-                * possibility to adjust the number of primary shards based on load and performance of the
-                previous indexes
-                * commonly used when indexing date-based information (like log files)
-        * number of replica shards can be changed at any time
-    * is customizable, for example: shard based on the customer’s country
     
 ### segment
 * contains
@@ -402,7 +408,7 @@
     * the more segments you have to go though, the slower the search
         * solution: merging
             * creating new and bigger segments with combined content
-                * commit: writes a new segments_N listing new merged segment and not segments that were merged
+                * commit: writes a new `segments_N` listing new merged segment and not segments that were merged
                 * example: excluding the deleted documents
             * tiered - default merge policy
                 * segments divided into tiers by size
@@ -419,7 +425,10 @@
                     * avoids merging huge segments unless necessary
 
 ### scoring
-* TF: how often a term occurs in the text
+* TF: how often a term occurs in the document
 * IDF: the token's importance is inversely proportional to the number of occurrences across all of the documents
+    * `IDF = log(N / df)`
+        * N = total number of documents
+        * df = number of documents containing the term
 * Lucene’s default scoring formula, known as TF-IDF
-    * apart from normalization & other factors, in general, it is simply: `TF * 1/IDF`
+    * apart from normalization & other factors, in general, it is simply: `TF * IDF`
